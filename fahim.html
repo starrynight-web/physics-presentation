@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Force & Friction - Physics Presentation</title>
+
+    <!-- Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Chart.js for live graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+      :root {
+        --deep-blue: #1a237e;
+        --electric-blue: #2962ff;
+        --light-blue: #bbdefb;
+        --white: #ffffff;
+        --accent: #ff6d00;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--white);
+        color: var(--deep-blue);
+        overflow-x: hidden;
+      }
+
+      header {
+        background: linear-gradient(
+          135deg,
+          var(--deep-blue) 0%,
+          var(--electric-blue) 100%
+        );
+        color: white;
+        padding: 3rem 2rem;
+        text-align: center;
+      }
+
+      h1 {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(2.5rem, 6vw, 4rem);
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 1rem;
+      }
+
+      .header-subtitle {
+        font-size: clamp(1rem, 2vw, 1.3rem);
+        font-weight: 300;
+        opacity: 0.9;
+      }
+
+      section {
+        max-width: 1000px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--light-blue);
+      }
+
+      h2 {
+        font-family: "Playfair Display", serif;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--deep-blue);
+        border-bottom: 2px solid var(--electric-blue);
+        padding-bottom: 0.5rem;
+      }
+
+      h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--deep-blue);
+      }
+
+      p {
+        line-height: 1.6;
+        margin-bottom: 1rem;
+      }
+
+      strong {
+        color: var(--electric-blue);
+      }
+
+      canvas {
+        width: 100%;
+        border: 2px solid var(--electric-blue);
+        border-radius: 10px;
+        background: var(--white);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .controls {
+        margin: 20px 0;
+        padding: 20px;
+        background: #f8fafc;
+        border-radius: 10px;
+        border: 1px solid var(--light-blue);
+      }
+
+      .control-group {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      label {
+        display: inline-block;
+        width: 180px;
+        font-weight: 600;
+        color: var(--deep-blue);
+      }
+
+      input[type="range"] {
+        width: 300px;
+        height: 8px;
+        border-radius: 5px;
+        background: var(--light-blue);
+        outline: none;
+        -webkit-appearance: none;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--accent);
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      .value {
+        font-weight: 700;
+        color: var(--accent);
+        min-width: 50px;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      button {
+        padding: 0.75rem 1.5rem;
+        background: var(--electric-blue);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(41, 98, 255, 0.3);
+      }
+
+      button:hover {
+        background: var(--accent);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 109, 0, 0.4);
+      }
+
+      .formula {
+        background: #fef9e7;
+        padding: 20px;
+        border-left: 5px solid var(--accent);
+        margin: 20px 0;
+        font-family: monospace;
+        font-size: 1.1em;
+        border-radius: 0 8px 8px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+
+      th {
+        background: var(--electric-blue);
+        color: white;
+        padding: 15px;
+        text-align: left;
+      }
+
+      td {
+        padding: 15px;
+        border-bottom: 1px solid var(--light-blue);
+      }
+
+      tr:nth-child(even) {
+        background: #f8fafc;
+      }
+
+      .canvas-container {
+        position: relative;
+        margin: 20px 0;
+      }
+
+      .legend {
+        text-align: center;
+        margin-top: 15px;
+        font-weight: 500;
+      }
+
+      .playground {
+        margin: 3rem 0;
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        text-align: center;
+        background: #f8fafc;
+        border: 1px solid var(--light-blue);
+      }
+
+      #box {
+        width: 80px;
+        height: 80px;
+        background: var(--accent);
+        border-radius: 15px;
+        position: relative;
+        margin: 30px auto;
+        cursor: grab;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        user-select: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+      }
+
+      #ground {
+        height: 20px;
+        background: repeating-linear-gradient(
+          90deg,
+          #4b5563,
+          #4b5563 10px,
+          #6b7280 10px,
+          #6b7280 20px
+        );
+        border-radius: 5px;
+        margin-top: 30px;
+      }
+
+      .friction-types {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+      }
+
+      .friction-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--light-blue);
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .friction-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .friction-card h3 {
+        color: var(--deep-blue);
+        margin-bottom: 1rem;
+      }
+
+      .friction-card p {
+        color: var(--electric-blue);
+        font-weight: 500;
+      }
+
+      footer {
+        text-align: center;
+        padding: 2rem;
+        background: var(--deep-blue);
+        color: white;
+        margin-top: 3rem;
+      }
+
+      @media (max-width: 768px) {
+        section {
+          padding: 1.5rem;
+          margin: 1.5rem;
+        }
+
+        .control-group {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        label {
+          width: 100%;
+          margin-bottom: 5px;
+        }
+
+        input[type="range"] {
+          width: 100%;
+        }
+
+        .button-group {
+          flex-direction: column;
+        }
+
+        button {
+          width: 100%;
+        }
+
+        table {
+          display: block;
+          overflow-x: auto;
+        }
+
+        .friction-types {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Force & Friction</h1>
+      <p class="header-subtitle">Interactive Physics Presentation</p>
+    </header>
+
+    <section>
+      <h2>What is Force?</h2>
+      <p>
+        Force is defined as an external cause that a body experiences as a
+        result of interacting with another body. Whenever two objects interact,
+        a force is exerted on each object.
+      </p>
+
+      <table>
+        <tr>
+          <th>PULL</th>
+          <th>PUSH</th>
+        </tr>
+        <tr>
+          <td>A force that moves an object closer</td>
+          <td>A force that moves an object away</td>
+        </tr>
+      </table>
+
+      <div class="formula">
+        <strong>Formula of Force: F = ma</strong><br />
+        Where, m is Mass of an object<br />
+        a is the acceleration of the object.
+      </div>
+    </section>
+
+    <section>
+      <h2>Force Simulation: Football Kick</h2>
+      <p>
+        Adjust the force and mass to see how they affect the ball's motion
+        according to Newton's Second Law (F=ma).
+      </p>
+
+      <div class="controls">
+        <div class="control-group">
+          <label for="kickForce">Kick Strength (Force):</label>
+          <input type="range" id="kickForce" min="0" max="100" value="30" />
+          <span class="value" id="kickVal">30 N</span>
+        </div>
+        <div class="control-group">
+          <label for="ballMass">Ball Mass:</label>
+          <input
+            type="range"
+            id="ballMass"
+            min="0.1"
+            max="1"
+            step="0.1"
+            value="0.4"
+          />
+          <span class="value" id="massVal">0.4 kg</span>
+        </div>
+        <div class="button-group">
+          <button onclick="kick()">Kick the Ball!</button>
+          <button onclick="resetBall()">Reset</button>
+        </div>
+      </div>
+
+      <div class="canvas-container">
+        <canvas id="footballCanvas" width="900" height="400"></canvas>
+        <p class="legend">
+          Acceleration = <span id="accelDisplay">0</span> m/s²  
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>What is Friction?</h2>
+      <p>
+        Friction is a force that opposes the motion of the object to which it is
+        applied.
+      </p>
+
+      <h3>Types of Friction</h3>
+      <div class="friction-types">
+        <div class="friction-card">
+          <h3>Static Friction</h3>
+          <p>Prevents motion before it starts (µₛ)</p>
+        </div>
+        <div class="friction-card">
+          <h3>Kinetic Friction</h3>
+          <p>Acts when object is moving (µₖ)</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Friction Simulation: Car on Different Surfaces</h2>
+      <p>
+        Change the friction coefficient to see how it affects the car's
+        movement. Lower μ = slippery surface (ice) → car slides easily. Higher μ
+        = rough surface (asphalt) → car struggles.
+      </p>
+
+      <div class="controls">
+        <div class="control-group">
+          <label for="muCar">Friction Coefficient μ:</label>
+          <input
+            type="range"
+            id="muCar"
+            min="0.01"
+            max="1.5"
+            step="0.01"
+            value="0.6"
+          />
+          <span class="value" id="muDisplay">0.60</span>
+        </div>
+        <p style="text-align: center; font-size: 1.2rem; margin: 1rem 0">
+          Surface:
+          <span id="surfaceName" style="color: var(--accent); font-weight: 600"
+            >Dry Asphalt</span
+          >
+        </p>
+      </div>
+
+      <!-- Car Playground -->
+      <div
+        id="carPlayground"
+        style="
+          position: relative;
+          height: 300px;
+          background: linear-gradient(to bottom, #334155, #1e293b);
+          border-radius: 20px;
+          overflow: hidden;
+          margin: 3rem 0;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        "
+      >
+        <!-- Road -->
+        <div
+          style="
+            position: absolute;
+            bottom: 80px;
+            width: 100%;
+            height: 100px;
+            background: #4b5563;
+          "
+        ></div>
+        <div
+          style="
+            position: absolute;
+            bottom: 80px;
+            width: 100%;
+            height: 8px;
+            background: #fff;
+            opacity: 0.7;
+          "
+        ></div>
+
+        <!-- Car -->
+        <div
+          id="car"
+          style="
+            position: absolute;
+            left: 50px;
+            bottom: 90px;
+            width: 180px;
+            height: 80px;
+            transition: transform 0.1s linear;
+          "
+        >
+          <!-- Car body -->
+          <div
+            style="
+              position: relative;
+              width: 100%;
+              height: 60px;
+              background: #ef4444;
+              border-radius: 15px 40px 10px 10px;
+              box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            "
+          >
+            <div
+              style="
+                position: absolute;
+                top: 10px;
+                left: 20px;
+                width: 50px;
+                height: 30px;
+                background: #1e40af;
+                border-radius: 10px;
+              "
+            ></div>
+          </div>
+          <!-- Wheels -->
+          <div
+            style="
+              position: absolute;
+              bottom: -15px;
+              left: 20px;
+              width: 40px;
+              height: 40px;
+              background: #1f2937;
+              border-radius: 50%;
+              border: 6px solid #94a3b8;
+            "
+          ></div>
+          <div
+            style="
+              position: absolute;
+              bottom: -15px;
+              right: 20px;
+              width: 40px;
+              height: 40px;
+              background: #1f2937;
+              border-radius: 50%;
+              border: 6px solid #94a3b8;
+            "
+          ></div>
+          <div
+            style="
+              position: absolute;
+              bottom: -15px;
+              left: 20px;
+              width: 40px;
+              height: 40px;
+              background: #1f2937;
+              border-radius: 50%;
+              border: 6px solid #94a3b8;
+              animation: spin 0.5s linear infinite paused;
+            "
+            id="wheel1"
+          ></div>
+          <div
+            style="
+              position: absolute;
+              bottom: -15px;
+              right: 20px;
+              width: 40px;
+              height: 40px;
+              background: #1f2937;
+              border-radius: 50%;
+              border: 6px solid #94a3b8;
+              animation: spin 0.5s linear infinite paused;
+            "
+            id="wheel2"
+          ></div>
+        </div>
+
+        <!-- Finish line -->
+        <div
+          style="
+            position: absolute;
+            right: 50px;
+            top: 0;
+            bottom: 0;
+            width: 10px;
+            background: repeating-linear-gradient(
+              0deg,
+              #fff,
+              #fff 20px,
+              #000 20px,
+              #000 40px
+            );
+          "
+        ></div>
+        <p
+          style="
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            background: #10b981;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+          "
+        >
+          FINISH
+        </p>
+      </div>
+
+      <div style="text-align: center; font-size: 1.2rem; margin-top: 1rem">
+        Time to finish: <span id="timeDisplay">—</span> s  |  Speed:
+        <span id="speedDisplay">0</span> km/h
+      </div>
+    </section>
+
+    <section>
+      <h2>Relation Between Force & Friction</h2>
+      <p>
+        Friction depends on the normal force and the coefficient of friction
+        between surfaces.
+      </p>
+
+      <div class="formula">
+        <strong>Friction Formula: f = μN</strong><br />
+        Where, μ = coefficient of friction<br />
+        N = normal force
+      </div>
+
+      <h3>Interactive Force Playground</h3>
+      <p>
+        Drag the box to experience force in action. Watch how applied force and
+        friction interact.
+      </p>
+
+      <div class="playground">
+        <h3>Drag the box → See the force in action!</h3>
+        <div id="box">Drag Me!</div>
+        <div id="ground"></div>
+        <p>
+          Applied Force: <span id="forceValue">0</span> N  Friction:
+          <span id="frictionValue">0</span> N
+        </p>
+      </div>
+
+      <div class="canvas-container">
+        <canvas id="forceChart" height="200"></canvas>
+      </div>
+    </section>
+
+    <!-- Navigation Buttons -->
+    <section
+      style="
+        text-align: center;
+        padding: 2rem;
+        max-width: 1000px;
+        margin: 2rem auto;
+      "
+    >
+      <a
+        href="index.html"
+        style="
+          display: inline-block;
+          padding: 0.75rem 1.5rem;
+          background: var(--electric-blue);
+          color: white;
+          text-decoration: none;
+          border-radius: 25px;
+          font-weight: 600;
+          margin: 0 1rem;
+          transition: all 0.3s ease;
+        "
+        >← Back to Home</a
+      >
+      <a
+        href="lamia.html"
+        style="
+          display: inline-block;
+          padding: 0.75rem 1.5rem;
+          background: var(--accent);
+          color: white;
+          text-decoration: none;
+          border-radius: 25px;
+          font-weight: 600;
+          margin: 0 1rem;
+          transition: all 0.3s ease;
+        "
+        >Next: Standing Waves →</a
+      >
+    </section>
+
+    <footer>
+      Interactive Force & Friction Presentation © 2025 | Made with HTML5 Canvas
+      + JavaScript
+    </footer>
+
+    <script>
+      // Football Kick Simulation
+      const footballCanvas = document.getElementById("footballCanvas");
+      const fctx = footballCanvas.getContext("2d");
+      let ballX = 100,
+        ballY = 280,
+        vx = 0,
+        vy = 0,
+        animating = false;
+
+      function drawFootball() {
+        fctx.clearRect(0, 0, footballCanvas.width, footballCanvas.height);
+
+        // Ground
+        fctx.fillStyle = "#27ae60";
+        fctx.fillRect(0, 320, footballCanvas.width, 80);
+
+        // Football
+        fctx.fillStyle = "#fff";
+        fctx.beginPath();
+        fctx.arc(ballX, ballY, 30, 0, Math.PI * 2);
+        fctx.fill();
+        fctx.strokeStyle = "#000";
+        fctx.lineWidth = 3;
+        fctx.stroke();
+        // Pentagon pattern
+        fctx.fillStyle = "#000";
+        for (let i = 0; i < 5; i++) {
+          let angle = (i * 72 * Math.PI) / 180;
+          let px = ballX + 18 * Math.cos(angle);
+          let py = ballY + 18 * Math.sin(angle);
+          fctx.fillRect(px - 4, py - 4, 8, 8);
+        }
+
+        if (animating) {
+          vx *= 0.99; // air resistance
+          vy += 0.4; // gravity
+          ballX += vx;
+          ballY += vy;
+          ballY = Math.min(ballY, 280);
+
+          if (ballY >= 279 && Math.abs(vy) > 1) vy = -vy * 0.7; // bounce
+
+          if (Math.abs(vx) < 0.1 && ballY > 270) {
+            animating = false;
+            vx = vy = 0;
+          }
+          requestAnimationFrame(drawFootball);
+        }
+      }
+
+      function kick() {
+        const force = parseFloat(document.getElementById("kickForce").value);
+        const mass = parseFloat(document.getElementById("ballMass").value);
+        const accel = force / mass;
+        const angle = (-30 * Math.PI) / 180;
+        vx = accel * Math.cos(angle) * 1.8;
+        vy = accel * Math.sin(angle) * 1.8;
+        animating = true;
+        drawFootball();
+      }
+
+      function resetBall() {
+        ballX = 100;
+        ballY = 280;
+        vx = 0;
+        vy = 0;
+        animating = false;
+        document.getElementById("accelDisplay").textContent = (
+          parseFloat(document.getElementById("kickForce").value) /
+          parseFloat(document.getElementById("ballMass").value)
+        ).toFixed(1);
+        // document.getElementById('velDisplay').textContent = '0';
+        drawFootball();
+      }
+
+      // Update displays
+      document.getElementById("kickForce").oninput = () => {
+        document.getElementById("kickVal").textContent =
+          document.getElementById("kickForce").value + " N";
+        resetBall();
+      };
+      document.getElementById("ballMass").oninput = () => {
+        document.getElementById("massVal").textContent =
+          document.getElementById("ballMass").value + " kg";
+        resetBall();
+      };
+      resetBall();
+
+      // Draggable box
+      const box = document.getElementById("box");
+      const forceValue = document.getElementById("forceValue");
+      const frictionValue = document.getElementById("frictionValue");
+      let isDragging = false;
+      let startX,
+        currentForce = 0;
+
+      box.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        startX = e.clientX;
+      });
+      document.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - startX;
+        currentForce = Math.abs(deltaX / 5); // arbitrary scaling
+        forceValue.textContent = currentForce.toFixed(1);
+        frictionValue.textContent = (currentForce * 0.5).toFixed(1); // simple kinetic friction
+        box.style.transform = `translateX(${deltaX}px)`;
+      });
+      document.addEventListener("mouseup", () => {
+        if (isDragging && currentForce > 20) {
+          box.style.background = "#10b981";
+          setTimeout(() => (box.style.background = "var(--accent)"), 1000);
+        }
+        isDragging = false;
+      });
+
+      // Chart - Increased height to 200px
+      const ctx = document.getElementById("forceChart").getContext("2d");
+      const chart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: "Applied Force (N)",
+              data: [],
+              borderColor: "#ff6d00",
+              tension: 0.4,
+            },
+          ],
+        },
+        options: {
+          animation: { duration: 0 },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "Force (N)",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "Time",
+              },
+            },
+          },
+          maintainAspectRatio: false,
+          responsive: true,
+        },
+      });
+
+      setInterval(() => {
+        chart.data.labels.push("");
+        chart.data.datasets[0].data.push(currentForce);
+        if (chart.data.labels.length > 20) {
+          chart.data.labels.shift();
+          chart.data.datasets[0].data.shift();
+        }
+        chart.update();
+      }, 300);
+
+      // Car Friction Demo
+      const muCarSlider = document.getElementById("muCar");
+      const muDisplay = document.getElementById("muDisplay");
+      const surfaceName = document.getElementById("surfaceName");
+      const car = document.getElementById("car");
+      const wheel1 = document.getElementById("wheel1");
+      const wheel2 = document.getElementById("wheel2");
+      const timeDisplay = document.getElementById("timeDisplay");
+      const speedDisplay = document.getElementById("speedDisplay");
+
+      const trackLength =
+        document.getElementById("carPlayground").offsetWidth - 300; // pixels
+
+      function updateSurfaceName(mu) {
+        if (mu <= 0.05) surfaceName.textContent = "Ice";
+        else if (mu <= 0.2) surfaceName.textContent = "Wet Road";
+        else if (mu <= 0.6) surfaceName.textContent = "Dry Asphalt";
+        else surfaceName.textContent = "Rough Sand/Gravel";
+      }
+
+      function startCar() {
+        const mu = parseFloat(muCarSlider.value);
+        muDisplay.textContent = mu.toFixed(2);
+        updateSurfaceName(mu);
+
+        car.style.transition = "none";
+        car.style.transform = "translateX(0px)";
+        wheel1.style.animationPlayState = "paused";
+        wheel2.style.animationPlayState = "paused";
+        setTimeout(() => {
+          const acceleration = 30 / (1 + mu * 10); // magic formula for visible effect
+          const duration = Math.max(1, trackLength / acceleration / 50); // seconds
+
+          car.style.transition = `transform ${duration}s linear`;
+          car.style.transform = `translateX(${trackLength}px)`;
+
+          // spinning wheels
+          wheel1.style.animation = `spin ${duration * 0.3}s linear infinite`;
+          wheel2.style.animation = `spin ${duration * 0.3}s linear infinite`;
+          wheel1.style.animationPlayState = "running";
+          wheel2.style.animationPlayState = "running";
+
+          const startTime = Date.now();
+          const timer = setInterval(() => {
+            const elapsed = (Date.now() - startTime) / 1000;
+            const speed =
+              elapsed > 0 ? ((trackLength / elapsed) * 3.6).toFixed(0) : 0;
+            speedDisplay.textContent = speed;
+          }, 100);
+
+          setTimeout(() => {
+            clearInterval(timer);
+            const totalTime = ((Date.now() - startTime) / 1000).toFixed(2);
+            timeDisplay.textContent = totalTime;
+            speedDisplay.textContent = "0";
+          }, duration * 1000 + 100);
+        }, 200);
+      }
+
+      muCarSlider.addEventListener("input", () => {
+        muDisplay.textContent = muCarSlider.value;
+        updateSurfaceName(parseFloat(muCarSlider.value));
+      });
+
+      // Auto-start when slider is moved
+      muCarSlider.addEventListener("input", startCar);
+
+      // First run
+      startCar();
+
+      // Wheel spin animation
+      const style = document.createElement("style");
+      style.textContent = `
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+        `;
+      document.head.appendChild(style);
+    </script>
+  </body>
+</html>
