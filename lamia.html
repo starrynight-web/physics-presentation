@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Interactive Standing Waves Presentation</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f0f2f5; color: #333; }
+  header { background: #2c3e50; color: white; padding: 2rem; text-align: center; }
+  section { max-width: 1000px; margin: 2rem auto; padding: 1.5rem; background: white; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  h1, h2 { color: #2c3e50; }
+  canvas { border: 2px solid #3498db; border-radius: 8px; background: #fff; }
+  .controls { margin: 20px 0; padding: 15px; background: #ecf0f1; border-radius: 8px; }
+  label { display: inline-block; width: 180px; font-weight: bold; }
+  input[type=range] { width: 300px; }
+  .value { font-weight: bold; color: #e74c3c; }
+  .formula { background: #fef9e7; padding: 15px; border-left: 5px solid #f1c40f; margin: 15px 0; font-family: monospace; font-size: 1.1em; }
+  footer { text-align: center; padding: 2rem; background: #2c3e50; color: white; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Standing / Stationary Waves</h1>
+  <p>Interactive Physics Presentation</p>
+</header>
+
+<section>
+  <h2>What is a Standing Wave?</h2>
+  <p>A standing wave is formed by the superposition of two identical progressive waves traveling in <strong>opposite directions</strong>. The result is a wave pattern with fixed <strong>nodes</strong> (zero displacement) and <strong>antinodes</strong> (maximum displacement).</p>
+  <p>Real-life examples: Vibrations on a guitar string, violin string, microwave oven, organ pipes.</p>
+</section>
+
+<section>
+  <h2>Live Interactive Standing Wave</h2>
+  <div class="controls">
+    <div>
+      <label for="freq">Frequency (Hz):</label>
+      <input type="range" id="freq" min="0.2" max="4" step="0.1" value="1">
+      <span class="value" id="freqVal">1.0</span>
+    </div>
+    <div>
+      <label for="mode">Mode number n (harmonics):</label>
+      <input type="range" id="mode" min="1" max="8" step="1" value="1">
+      <span class="value" id="modeVal">1</span>
+    </div>
+    <div>
+      <label for="amplitude">Amplitude:</label>
+      <input type="range" id="amplitude" min="10" max="100" step="5" value="60">
+      <span class="value" id="ampVal">60</span>
+    </div>
+    <div>
+      <label for="speed">Animation speed:</label>
+      <input type="range" id="speed" min="0.2" max="3" step="0.1" value="1">
+      <span class="value" id="speedVal">1.0</span>
+    </div>
+    <div style="margin-top:15px;">
+      <button onclick="reset()">Reset to Fundamental Mode</button>
+      <button onclick="pause=!pause;">Pause / Play</button>
+    </div>
+  </div>
+
+  <canvas id="waveCanvas" width="900" height="400"></canvas>
+  <p style="text-align:center; margin-top:10px;">
+    <strong>Blue dots</strong> = Nodes &nbsp;&nbsp; <strong>Red dots</strong> = Antinodes
+  </p>
+</section>
+
+<section>
+  <h2>Superposition Principle & Derivation</h2>
+  <p>Two opposite progressive waves:</p>
+  <div class="formula">
+    y₁ = a sin(ωt − kx) <br>
+    y₂ = a sin(ωt + kx)
+  </div>
+  <p>Superposition →</p>
+  <div class="formula">
+    y = y₁ + y₂ = 2a sin(ωt) cos(kx)   ← Standing wave equation
+  </div>
+  <p>Or the most common form for a string fixed at both ends:</p>
+  <div class="formula">
+    y(x,t) = 2A sin(kx) cos(ωt)   where A = a (original amplitude)
+  </div>
+  <p>For the nth harmonic on a string of length L:</p>
+  <div class="formula">
+    λₙ = 2L/n    →    kₙ = 2π/λₙ = nπ/L    →    fₙ = n v/(2L)
+  </div>
+</section>
+
+<section>
+  <h2>Nodes and Antinodes</h2>
+  <table width="100%" style="border-collapse:collapse;">
+    <tr style="background:#3498db;color:white;">
+      <th>Node points (amplitude = 0)</th>
+      <th>Antinode points (amplitude = maximum)</th>
+    </tr>
+    <tr>
+      <td>sin(kx) = 0 → kx = nπ → x = nL/(2n) = <strong>nL/n</strong> (n = 0,1,2...)</td>
+      <td>cos(kx) = ±1 → kx = π/2, 3π/2, … → x = <strong>(2n+1)L/(2n)</strong></td>
+    </tr>
+  </table>
+</section>
+
+<footer>
+  Interactive Standing Wave Presentation © 2025 | Made with HTML5 Canvas + JavaScript
+</footer>
+
+<script>
+// Canvas setup
+const canvas = document.getElementById('waveCanvas');
+const ctx = canvas.getContext('2d');
+let pause = false;
+let t = 0;
+
+// UI elements
+const freqSlider = document.getElementById('freq');
+const modeSlider = document.getElementById('mode');
+const ampSlider = document.getElementById('amplitude');
+const speedSlider = document.getElementById('speed');
+
+document.getElementById('freqVal').textContent = freqSlider.value;
+document.getElementById('modeVal').textContent = modeSlider.value;
+document.getElementById('ampVal').textContent = ampSlider.value;
+document.getElementById('speedVal').textContent = speedSlider.value;
+
+freqSlider.oninput = () => document.getElementById('freqVal').textContent = freqSlider.value;
+modeSlider.oninput = () => document.getElementById('modeVal').textContent = modeSlider.value;
+ampSlider.oninput = () => document.getElementById('ampVal').textContent = ampSlider.value;
+speedSlider.oninput = () => document.getElementById('speedVal').textContent = speedSlider.value;
+
+function reset() {
+  modeSlider.value = 1;
+  freqSlider.value = 1;
+  ampSlider.value = 60;
+  document.getElementById('modeVal').textContent = 1;
+  document.getElementById('freqVal').textContent = 1;
+  document.getElementById('ampVal').textContent = 60;
+}
+
+function drawWave() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const L = canvas.width - 100;           
+  const n = parseInt(modeSlider.value); 
+  const A = parseFloat(ampSlider.value);
+  const omega = parseFloat(freqSlider.value) * 5; 
+  const k = n * Math.PI / L;
+
+  // Draw fixed ends (walls)
+  ctx.fillStyle = '#2c3e50';
+  ctx.fillRect(40, 0, 20, canvas.height);
+  ctx.fillRect(canvas.width - 60, 0, 20, canvas.height);
+
+  // Draw the standing wave
+  ctx.beginPath();
+  ctx.strokeStyle = '#e74c3c';
+  ctx.lineWidth = 3;
+
+  for (let px = 0; px <= L; px += 2) {
+    const x = px;
+    const y = canvas.height/2 + A * Math.sin(k * x) * Math.cos(omega * t);
+    if (px === 0) ctx.moveTo(50 + px, y);
+    else ctx.lineTo(50 + px, y);
+  }
+  ctx.stroke();
+
+
+  // Nodes (blue) and Antinodes (red)
+  
+  for (let i = 0; i <= n; i++) {
+    const nodeX = 50 + (i * L / n);
+    ctx.fillStyle = '#3498db';
+    ctx.beginPath();
+    ctx.arc(nodeX, canvas.height/2, 8, 0, Math.PI*2);
+    ctx.fill();
+  }
+  for (let i = 0; i < n; i++) {
+    const antiX = 50 + ((2*i + 1) * L / (2*n));
+    const disp = A * Math.cos(omega * t);
+    ctx.fillStyle = '#e74c3c';
+    ctx.beginPath();
+    ctx.arc(antiX, canvas.height/2 + disp*Math.sin(k * (antiX-50)), 8, 0, Math.PI*2);
+    ctx.fill();
+  }
+  
+
+  // Time evolution
+  if (!pause) t += 0.015 * parseFloat(speedSlider.value);
+  requestAnimationFrame(drawWave);
+}
+
+drawWave();
+</script>
+</body>
+</html>

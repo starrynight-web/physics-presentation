@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameHub - Ultimate Mini Games Collection</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.birds.min.js"></script>
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        :root {
+            --sage: #9ca986;
+            --charcoal: #2d3436;
+            --cream: #f8f6f0;
+            --accent: #6c7b7f;
+            --gold: #e17055;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--cream);
+            color: var(--charcoal);
+            overflow-x: hidden;
+        }
+        
+        .hero-section {
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--sage) 0%, var(--accent) 100%);
+        }
+        
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+            max-width: 800px;
+            padding: 0 2rem;
+        }
+        
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 800;
+            line-height: 0.9;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            font-weight: 300;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: var(--gold);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(225, 112, 85, 0.3);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(225, 112, 85, 0.4);
+        }
+        
+        .games-section {
+            padding: 6rem 0;
+            background: var(--cream);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--charcoal);
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-bottom: 4rem;
+            font-weight: 300;
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .game-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+        
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--sage), var(--gold));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .game-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .game-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, var(--sage), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="white" opacity="0.1"/><circle cx="80" cy="40" r="1" fill="white" opacity="0.1"/><circle cx="40" cy="80" r="1.5" fill="white" opacity="0.1"/></svg>');
+            animation: float 20s infinite linear;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-100px); }
+        }
+        
+        .game-content {
+            padding: 1.5rem;
+        }
+        
+        .game-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--charcoal);
+        }
+        
+        .game-description {
+            color: var(--accent);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        
+        .game-button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: var(--sage);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .game-button:hover {
+            background: var(--charcoal);
+            transform: translateY(-2px);
+        }
+        
+        .stats-section {
+            background: var(--charcoal);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .stat-item {
+            padding: 2rem;
+        }
+        
+        .stat-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--gold);
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            margin-top: 0.5rem;
+            opacity: 0.8;
+        }
+        
+        .footer {
+            background: var(--charcoal);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+        
+        .scroll-indicator svg {
+            width: 30px;
+            height: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .games-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .hero-content {
+                padding: 0 1rem;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+        }
+        
+        .loading {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+        
+        .loading.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .reveal-text {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .reveal-text.revealed {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.8s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div id="hero-bg" class="hero-bg"></div>
+        <div class="hero-content">
+            <h1 class="hero-title" data-splitting>UNGAMES</h1>
+            <p class="hero-subtitle reveal-text">Discover 30 incredible mini-games in one stunning collection. From classic puzzles to action-packed adventures, endless entertainment awaits.</p>
+            <a href="#games" class="cta-button reveal-text">Explore Games</a>
+        </div>
+        <div class="scroll-indicator">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Games Section -->
+    <section id="games" class="games-section">
+        <div class="container">
+            <h2 class="section-title loading">Ultimate Game Collection</h2>
+            <p class="section-subtitle loading">30 carefully crafted games for endless entertainment</p>
+            
+            <div class="games-grid">
+                <!-- Game Cards -->
+                <div class="game-card loading" onclick="window.location.href='23-Tic-Tac-Toe-Game/index.html'">
+                    <div class="game-image">❌⭕</div>
+                    <div class="game-content">
+                        <h3 class="game-title">Tic Tac Toe</h3>
+                        <p class="game-description">Classic strategy game where X's and O's battle for dominance on a 3x3 grid. Perfect for quick matches.</p>
+                        <a href="23-Tic-Tac-Toe-Game/index.html" class="game-button">Play Now</a>
+                    </div>
+                </div>
+                
+                <div class="game-card loading" onclick="window.location.href='12-Snake-Game/index.html'">
+                    <div class="game-image">🐍</div>
+                    <div class="game-content">
+                        <h3 class="game-title">Snake Game</h3>
+                        <p class="game-description">Navigate the growing snake to collect food while avoiding walls and your own tail. A timeless classic.</p>
+                        <a href="12-Snake-Game/index.html" class="game-button">Play Now</a>
+                    </div>
+                </div>
+                
+                <div class="game-card loading" onclick="window.location.href='19-2048-Game/index.html'">
+                    <div class="game-image">🔢</div>
+                    <div class="game-content">
+                        <h3 class="game-title">2048 Puzzle</h3>
+                        <p class="game-description">Combine tiles to reach the elusive 2048 tile. Addictive number puzzle that challenges your mind.</p>
+                        <a href="19-2048-Game/index.html" class="game-button">Play Now</a>
+                    </div>
+                </div>
+                
+                <div class="game-card loading" onclick="showComingSoon()">
+                    <div class="game-image">🍭</div>
+                    <div class="game-content">
+                        <h3 class="game-title">Candy Crush</h3>
+                        <p class="game-description">Match colorful candies in this addictive puzzle game. Create special combinations for explosive fun.</p>
+                        <a href="#" class="game-button" onclick="showComingSoon(event)">Coming Soon</a>
+                    </div>
+                </div>
+                
+                <div class="game-card loading" onclick="showComingSoon()">
+                    <div class="game-image">🏹</div>
+                    <div class="game-content">
+                        <h3 class="game-title">Archery Game</h3>
+                        <p class="game-description">Test your aim and precision in this challenging archery simulation. Hit the bullseye for maximum points.</p>
+                        <a href="#" class="game-button" onclick="showComingSoon(event)">Coming Soon</a>
+                    </div>
+                </div>
+                
+                <div class="game-card loading" onclick="showComingSoon()">
+                    <div class="game-image">💣</div>
+                    <div class="game-content">
+                        <h3 class="game-title">Minesweeper</h3>
+                        <p class="game-description">Clear the minefield without detonating any bombs. Use logic and deduction to win this classic puzzle.</p>
+                        <a href="#" class="game-button" onclick="showComingSoon(event)">Coming Soon</a>
+                    </div>
+                </div>
+                
+                <div class="game-card loading" onclick="showComingSoon()">
+                    <div class="game-image">🧱</div>
+                    <div class="game-content">
+                        <h3 class="game-title">Tower Blocks</h3>
+                        <p class="game-description">Stack blocks to build the tallest tower possible. Precision and timing are key in this challenging game.</p>
+                        <a href="#" class="game-button" onclick="showComingSoon(event)">Coming Soon</a>
+                    </div>
+                </div>
+                
+                <div class="game-card loading" onclick="showComingSoon()">
+                    <div class="game-image">🏓</div>
+                    <div class="game-content">
+                        <h3 class="game-title">Ping Pong</h3>
+                        <p class="game-description">Classic table tennis action with smooth physics. Challenge the AI or compete with friends.</p>
+                        <a href="#" class="game-button" onclick="showComingSoon(event)">Coming Soon</a>
+                    </div>
+                </div>
+                
+                <div class="game-card loading" onclick="showComingSoon()">
+                    <div class="game-image">🧩</div>
+                    <div class="game-content">
+                        <h3 class="game-title">Tetris</h3>
+                        <p class="game-description">The ultimate block-stacking puzzle game. Clear lines and achieve high scores in this timeless classic.</p>
+                        <a href="#" class="game-button" onclick="showComingSoon(event)">Coming Soon</a>
+                    </div>
+                </div>
+                
+                <div class="game-card loading" onclick="showComingSoon()">
+                    <div class="game-image">🎯</div>
+                    <div class="game-content">
+                        <h3 class="game-title">Memory Cards</h3>
+                        <p class="game-description">Test your memory by matching pairs of cards. Multiple difficulty levels for endless challenge.</p>
+                        <a href="#" class="game-button" onclick="showComingSoon(event)">Coming Soon</a>
+                    </div>
+                </div>
+                
+                <div class="game-card loading" onclick="showComingSoon()">
+                    <div class="game-image">🎵</div>
+                    <div class="game-content">
+                        <h3 class="game-title">Simon Says</h3>
+                        <p class="game-description">Follow the pattern of lights and sounds. Test your memory and reflexes in this classic game.</p>
+                        <a href="#" class="game-button" onclick="showComingSoon(event)">Coming Soon</a>
+                    </div>
+                </div>
+                
+                <div class="game-card loading" onclick="showComingSoon()">
+                    <div class="game-image">🎮</div>
+                    <div class="game-content">
+                        <h3 class="game-title">And 18 More Games...</h3>
+                        <p class="game-description">Explore our complete collection including Flappy Bird, Space Invaders, Sudoku, Quiz Games, and many more!</p>
+                        <a href="#" class="game-button" onclick="showComingSoon(event)">View All</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <h2 class="section-title" style="color: white; margin-bottom: 1rem;">Game Statistics</h2>
+            <p style="font-size: 1.1rem; opacity: 0.8;">Join thousands of players enjoying our games</p>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number">30</span>
+                    <span class="stat-label">Total Games</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">15K+</span>
+                    <span class="stat-label">Players</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">50K+</span>
+                    <span class="stat-label">Games Played</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">4.8</span>
+                    <span class="stat-label">Average Rating</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 GameHub. Built with passion for gaming. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Vanta.js background
+        VANTA.BIRDS({
+            el: "#hero-bg",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            backgroundColor: 0x9ca986,
+            color1: 0x6c7b7f,
+            color2: 0xe17055,
+            birdSize: 1.20,
+            wingSpan: 25.00,
+            speedLimit: 3.00,
+            separation: 20.00,
+            alignment: 20.00,
+            cohesion: 20.00,
+            quantity: 3.00
+        });
+
+        // Initialize Splitting.js for text animations
+        Splitting();
+
+        // Loading animations
+        window.addEventListener('load', function() {
+            const loadingElements = document.querySelectorAll('.loading');
+            loadingElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('loaded');
+                }, index * 100);
+            });
+
+            // Reveal text animations
+            setTimeout(() => {
+                const revealTexts = document.querySelectorAll('.reveal-text');
+                revealTexts.forEach((element, index) => {
+                    setTimeout(() => {
+                        element.classList.add('revealed');
+                    }, index * 200);
+                });
+            }, 500);
+        });
+
+        // Smooth scrolling for CTA button
+        document.querySelector('.cta-button').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector('#games').scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+
+        // Coming soon popup
+        function showComingSoon(event) {
+            if (event) event.preventDefault();
+            alert('🎮 Coming Soon!\n\nThis game is currently being prepared. Stay tuned for more exciting games!');
+        }
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe game cards for scroll animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const gameCards = document.querySelectorAll('.game-card');
+            gameCards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = 'all 0.6s ease';
+                observer.observe(card);
+            });
+        });
+
+        // Parallax effect for hero section
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const heroSection = document.querySelector('.hero-section');
+            if (heroSection) {
+                heroSection.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+        });
+    </script>
+</body>
+</html>
