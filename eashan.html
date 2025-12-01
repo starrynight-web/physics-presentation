@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Brewster's Law - Interactive Physics Lab</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+      :root {
+        --deep-blue: #1a237e;
+        --electric-blue: #2962ff;
+        --light-blue: #bbdefb;
+        --white: #ffffff;
+        --accent: #ff6d00;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--white);
+        color: var(--deep-blue);
+        overflow-x: hidden;
+      }
+
+      header {
+        background: linear-gradient(
+          135deg,
+          var(--deep-blue) 0%,
+          var(--electric-blue) 100%
+        );
+        color: white;
+        padding: 3rem 2rem;
+        text-align: center;
+      }
+
+      h1 {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(2.5rem, 6vw, 4rem);
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 1rem;
+      }
+
+      .header-subtitle {
+        font-size: clamp(1rem, 2vw, 1.3rem);
+        font-weight: 300;
+        opacity: 0.9;
+      }
+
+      section {
+        max-width: 1000px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--light-blue);
+      }
+
+      h2 {
+        font-family: "Playfair Display", serif;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--deep-blue);
+        border-bottom: 2px solid var(--electric-blue);
+        padding-bottom: 0.5rem;
+      }
+
+      h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--deep-blue);
+      }
+
+      p {
+        line-height: 1.6;
+        margin-bottom: 1rem;
+      }
+
+      strong {
+        color: var(--electric-blue);
+      }
+
+      canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+        border: 2px solid var(--electric-blue);
+        border-radius: 10px;
+        background: var(--white);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .controls {
+        margin: 20px 0;
+        padding: 20px;
+        background: #f8fafc;
+        border-radius: 10px;
+        border: 1px solid var(--light-blue);
+      }
+
+      .control-group {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      label {
+        display: inline-block;
+        width: 180px;
+        font-weight: 600;
+        color: var(--deep-blue);
+      }
+
+      input[type="range"] {
+        width: 300px;
+        height: 8px;
+        border-radius: 5px;
+        background: var(--light-blue);
+        outline: none;
+        -webkit-appearance: none;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--accent);
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      .value {
+        font-weight: 700;
+        color: var(--accent);
+        min-width: 50px;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      button {
+        padding: 0.75rem 1.5rem;
+        background: var(--electric-blue);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(41, 98, 255, 0.3);
+      }
+
+      button:hover {
+        background: var(--accent);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 109, 0, 0.4);
+      }
+
+      .formula {
+        background: #fef9e7;
+        padding: 20px;
+        border-left: 5px solid var(--accent);
+        margin: 20px 0;
+        font-family: monospace;
+        font-size: 1.1em;
+        border-radius: 0 8px 8px 0;
+      }
+
+      .canvas-container {
+        position: relative;
+        margin: 20px 0;
+      }
+
+      .legend {
+        text-align: center;
+        margin-top: 15px;
+        font-weight: 500;
+      }
+
+      .interactive-diagram {
+        height: 500px;
+        background: #f0f7ff;
+        border-radius: 16px;
+        position: relative;
+        overflow: hidden;
+        border: 3px solid var(--electric-blue);
+      }
+
+      .value-display {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--electric-blue);
+        text-align: center;
+        padding: 1rem;
+        background: #e6f0ff;
+        border-radius: 12px;
+        margin-top: 1rem;
+      }
+
+      .formula-box {
+        background: linear-gradient(
+          135deg,
+          var(--electric-blue) 0%,
+          var(--deep-blue) 100%
+        );
+        color: white;
+        padding: 2rem;
+        border-radius: 16px;
+        text-align: center;
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .info-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--light-blue);
+      }
+
+      footer {
+        text-align: center;
+        padding: 2rem;
+        background: var(--deep-blue);
+        color: white;
+        margin-top: 3rem;
+      }
+
+      @media (max-width: 768px) {
+        section {
+          padding: 1.5rem;
+          margin: 1.5rem;
+        }
+
+        .control-group {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        label {
+          width: 100%;
+          margin-bottom: 5px;
+        }
+
+        input[type="range"] {
+          width: 100%;
+        }
+
+        .button-group {
+          flex-direction: column;
+        }
+
+        button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Brewster's Law</h1>
+      <p class="header-subtitle">Interactive Physics Presentation</p>
+    </header>
+
+    <section>
+      <h2>Live Reflection Simulator</h2>
+      <div class="interactive-diagram">
+        <canvas id="canvas"></canvas>
+      </div>
+
+      <div class="controls">
+        <div class="control-group">
+          <label for="angleSlider">Angle of Incidence (θ):</label>
+          <input
+            type="range"
+            id="angleSlider"
+            min="0"
+            max="89"
+            value="55"
+            step="1"
+          />
+          <span class="value" id="angleValue">55°</span>
+        </div>
+
+        <div class="control-group">
+          <label for="nSlider">Refractive Index (n):</label>
+          <input
+            type="range"
+            id="nSlider"
+            min="1.0"
+            max="3.0"
+            value="1.50"
+            step="0.01"
+          />
+          <span class="value" id="nValue">1.50</span>
+        </div>
+
+        <div class="value-display">
+          Brewster Angle θ<sub>B</sub> = <span id="brewsterAngle">58.0</span>°
+          <br />Polarization:
+          <span id="polStatus" style="color: var(--accent); font-weight: bold"
+            >Partially Polarized</span
+          >
+        </div>
+
+        <div class="button-group">
+          <button id="resetBtn">Reset to Brewster Angle</button>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="formula-box">
+        <h2>Brewster's Law</h2>
+        <p style="font-size: 2.2rem; margin: 1.5rem 0">n = tan θ<sub>B</sub></p>
+        <p>
+          At Brewster's angle, reflected light is
+          <strong>100% polarized</strong> ⊥ to the plane of incidence.
+        </p>
+      </div>
+
+      <div class="info-section">
+        <h2>What Happens?</h2>
+        <ul style="margin-left: 1.5rem; font-size: 1.1rem">
+          <li>
+            When unpolarized light hits a surface at
+            <strong>Brewster's angle</strong>, the reflected ray becomes
+            <strong>completely plane-polarized</strong>.
+          </li>
+          <li>
+            Reflected and refracted rays are
+            <strong>perpendicular</strong> (90°).
+          </li>
+          <li>
+            Brewster angle depends only on refractive index:
+            <code>θ_B = arctan(n)</code>
+          </li>
+          <li>
+            Used in polarizers, laser cavities, anti-glare coatings, photography
+            filters.
+          </li>
+        </ul>
+
+        <h2 style="margin-top: 2rem">Real-World Examples</h2>
+        <p>
+          Polarized sunglasses block horizontally polarized light (glare from
+          roads/water). They work best when you tilt your head ~55–60° — close
+          to Brewster's angle for glass/water!
+        </p>
+      </div>
+    </section>
+    <!-- Navigation Buttons -->
+    <section
+      style="
+        text-align: center;
+        padding: 2rem;
+        max-width: 1000px;
+        margin: 2rem auto;
+      "
+    >
+      <a
+        href="mahtab.html"
+        style="
+          display: inline-block;
+          padding: 0.75rem 1.5rem;
+          background: var(--electric-blue);
+          color: white;
+          text-decoration: none;
+          border-radius: 25px;
+          font-weight: 600;
+          margin: 0 0.5rem;
+          transition: all 0.3s ease;
+        "
+        >← Back to Polarized Light</a
+      >
+      <a
+        href="index.html"
+        style="
+          display: inline-block;
+          padding: 0.75rem 1.5rem;
+          background: var(--accent);
+          color: white;
+          text-decoration: none;
+          border-radius: 25px;
+          font-weight: 600;
+          margin: 0 0.5rem;
+          transition: all 0.3s ease;
+        "
+        >Back to Home</a
+      >
+    </section>
+
+    <footer>
+      Interactive Brewster's Law Lab © 2025 | Inspired by classic polarimeter &
+      reflection experiments
+    </footer>
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      const angleSlider = document.getElementById("angleSlider");
+      const nSlider = document.getElementById("nSlider");
+      const angleValue = document.getElementById("angleValue");
+      const nValue = document.getElementById("nValue");
+      const brewsterAngleSpan = document.getElementById("brewsterAngle");
+      const polStatus = document.getElementById("polStatus");
+      const resetBtn = document.getElementById("resetBtn");
+
+      // Resize canvas properly
+      function resize() {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+      }
+      window.addEventListener("resize", resize);
+      resize();
+
+      let angle = 55; // degrees
+      let n = 1.5;
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const cx = canvas.width / 2;
+        const cy = canvas.height * 0.65;
+        const scale = Math.min(canvas.width, canvas.height) * 0.35;
+
+        // Interface (air-glass)
+        ctx.fillStyle = "#bbdefb";
+        ctx.fillRect(0, cy, canvas.width, canvas.height - cy);
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(0, cy);
+        ctx.lineTo(canvas.width, cy);
+        ctx.stroke();
+
+        // Normal line
+        ctx.strokeStyle = "#666";
+        ctx.setLineDash([10, 10]);
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - scale);
+        ctx.lineTo(cx, cy + scale * 1.2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Incident ray (yellow)
+        const rad = (angle * Math.PI) / 180;
+        const ix = cx - scale * Math.cos(rad);
+        const iy = cy - scale * Math.sin(rad);
+
+        ctx.strokeStyle = "#ffb300";
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(ix, iy);
+        ctx.lineTo(cx, cy);
+        ctx.stroke();
+
+        // Draw arrowhead
+        drawArrow(ctx, ix, iy, cx, cy, "#ffb300");
+
+        // Reflected ray
+        ctx.strokeStyle = "#ff6b6b";
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + scale * Math.cos(rad), cy - scale * Math.sin(rad));
+        ctx.stroke();
+        drawArrow(
+          ctx,
+          cx,
+          cy,
+          cx + scale * Math.cos(rad),
+          cy - scale * Math.sin(rad),
+          "#ff6b6b"
+        );
+
+        // Refracted ray
+        const refractedAngle = (Math.asin(Math.sin(rad) / n) * 180) / Math.PI;
+        const rrad = (refractedAngle * Math.PI) / 180;
+        ctx.strokeStyle = "#4caf50";
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + scale * Math.cos(rrad), cy + scale * Math.sin(rrad));
+        ctx.stroke();
+        drawArrow(
+          ctx,
+          cx,
+          cy,
+          cx + scale * Math.cos(rrad),
+          cy + scale * Math.sin(rrad),
+          "#4caf50"
+        );
+
+        // Labels
+        ctx.fillStyle = "#333";
+        ctx.font = "16px Inter";
+        ctx.fillTextAlign = "center";
+        ctx.fillText(`θ = ${angle}°`, cx - 60, cy - 60);
+        ctx.fillText(`θr ≈ ${refractedAngle.toFixed(1)}°`, cx + 80, cy + 80);
+        ctx.fillText("Air", cx, cy - 100);
+        ctx.fillText(`Glass (n = ${n})`, cx, cy + 50);
+
+        // Polarization indication for reflected ray
+        if (Math.abs(angle - (Math.atan(n) * 180) / Math.PI) < 1) {
+          polStatus.textContent = "100% Polarized ⊥";
+          polStatus.style.color = "#d81b60";
+          // Show perpendicular polarization dots
+          drawPolarizationDots(ctx, cx + 60, cy - 100, 8);
+        } else if (Math.abs(angle - (Math.atan(n) * 180) / Math.PI) < 10) {
+          polStatus.textContent = "Almost Completely Polarized";
+          polStatus.style.color = "#ff9800";
+        } else {
+          polStatus.textContent = "Partially Polarized";
+          polStatus.style.color = "#666";
+        }
+      }
+
+      function drawArrow(ctx, fromx, fromy, tox, toy, color) {
+        const headlen = 15;
+        const dx = tox - fromx;
+        const dy = toy - fromy;
+        const angle = Math.atan2(dy, dx);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(tox, toy);
+        ctx.lineTo(
+          tox - headlen * Math.cos(angle - Math.PI / 6),
+          toy - headlen * Math.sin(angle - Math.PI / 6)
+        );
+        ctx.moveTo(tox, toy);
+        ctx.lineTo(
+          tox - headlen * Math.cos(angle + Math.PI / 6),
+          toy - headlen * Math.sin(angle + Math.PI / 6)
+        );
+        ctx.stroke();
+      }
+
+      function drawPolarizationDots(ctx, x, y, count) {
+        ctx.fillStyle = "#d81b60";
+        for (let i = 0; i < count; i++) {
+          const yy = y + i * 15 - count * 7.5;
+          ctx.beginPath();
+          ctx.arc(x, yy, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillRect(x - 15, yy - 1, 30, 2); // horizontal line = perpendicular polarization
+        }
+      }
+
+      // Update values and redraw
+      function update() {
+        angle = parseFloat(angleSlider.value);
+        n = parseFloat(nSlider.value).toFixed(2);
+
+        angleValue.textContent = angle;
+        nValue.textContent = n;
+
+        const brewster = (Math.atan(n) * 180) / Math.PI;
+        brewsterAngleSpan.textContent = brewster.toFixed(1);
+
+        draw();
+      }
+
+      angleSlider.addEventListener("input", update);
+      nSlider.addEventListener("input", update);
+      resetBtn.addEventListener("click", () => {
+        const brewsterDeg = (Math.atan(n) * 180) / Math.PI;
+        angleSlider.value = brewsterDeg.toFixed(0);
+        update();
+      });
+
+      // Initial draw
+      update();
+    </script>
+  </body>
+</html>

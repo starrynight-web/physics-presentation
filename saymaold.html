@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diffraction Physics: Fresnel & Fraunhofer</title>
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --primary-light: #6d8ec4;
+            --secondary: #e6b89c;
+            --accent: #7db9b6;
+            --light: #f9f7f7;
+            --text: #333333;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 6px 16px var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px var(--shadow);
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: var(--primary-light);
+            margin: 1.5rem 0 1rem;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .wave-simulation {
+            background: #f5f7fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sim-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .slider-container {
+            flex-grow: 1;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        .concept-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .concept-card {
+            background: var(--light);
+            border-left: 4px solid var(--accent);
+            padding: 1.2rem;
+            border-radius: 0 8px 8px 0;
+            transition: transform 0.3s ease;
+        }
+
+        .concept-card:hover {
+            transform: translateX(5px);
+        }
+
+        .visualization-container {
+            position: relative;
+            height: 300px;
+            margin: 2rem 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .color-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .interactive-demo {
+            background: #f0f4f8;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .demo-results {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .result-box {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px var(--shadow);
+        }
+
+        footer {
+            background: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .demo-results {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Diffraction Physics</h1>
+            <p class="subtitle">Exploring Fresnel & Fraunhofer Diffraction</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="section" id="intro">
+            <h2>How Scientists Uncovered Two Faces of Diffraction</h2>
+            <p>When early physicists like Huygens, Young, and Fresnel studied light, they noticed something unusual: Light didn't only travel straight — it bent around edges and created unexpected shadow patterns.</p>
+            <p>But these patterns changed drastically depending on how close the obstacle and screen were. Scientists realized that one mathematical model couldn't explain both situations.</p>
+            
+            <div class="content-grid">
+                <div>
+                    <h3>Fresnel Diffraction</h3>
+                    <p>Near-field patterns where wavefronts are curved and patterns are irregular.</p>
+                    <div class="concept-card">
+                        <h4>Key Characteristic</h4>
+                        <p>Occurs when source, slit, or screen are close to each other.</p>
+                    </div>
+                </div>
+                <div>
+                    <h3>Fraunhofer Diffraction</h3>
+                    <p>Far-field patterns where wavefronts are flat and patterns are stable.</p>
+                    <div class="concept-card">
+                        <h4>Key Characteristic</h4>
+                        <p>Occurs when light source and screen are at large distances.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="interactive-demo">
+                <h3>Interactive: See the Difference</h3>
+                <p>Adjust the distance between the obstacle and screen to see how the diffraction pattern changes:</p>
+                
+                <div class="demo-controls">
+                    <div class="slider-container">
+                        <label for="distance">Distance: <span id="distance-value">Medium</span></label>
+                        <input type="range" id="distance" min="1" max="3" value="2" step="1">
+                    </div>
+                    <button id="toggle-wave">Toggle Wave Visualization</button>
+                </div>
+                
+                <div class="visualization-container">
+                    <canvas id="diffraction-canvas"></canvas>
+                </div>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="color-box" style="background-color: #4a6fa5;"></div>
+                        <span>Wavefront</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="color-box" style="background-color: #e6b89c;"></div>
+                        <span>Obstacle</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="color-box" style="background-color: #7db9b6;"></div>
+                        <span>Diffraction Pattern</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="fresnel">
+            <h2>Fresnel Diffraction — Light Behavior in the Near Field</h2>
+            <p>Proposed by Augustin-Jean Fresnel while proving the wave nature of light, Fresnel diffraction occurs when the source, slit, or screen are close to each other.</p>
+            
+            <div class="content-grid">
+                <div>
+                    <h3>Key Concepts</h3>
+                    <div class="concept-list">
+                        <div class="concept-card">
+                            <h4>Curved Wavefronts</h4>
+                            <p>Wavefronts reaching the slit are curved, not flat.</p>
+                        </div>
+                        <div class="concept-card">
+                            <h4>Irregular Patterns</h4>
+                            <p>Diffraction pattern changes with distance and appears irregular.</p>
+                        </div>
+                        <div class="concept-card">
+                            <h4>Reorganizing Light</h4>
+                            <p>Light is still reorganizing its wavefronts.</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3>Real-Life Implementations</h3>
+                    <ul>
+                        <li>The soft edges of shadows around everyday objects</li>
+                        <li>Fresnel lenses used in projectors and lighthouses</li>
+                        <li>Optical security designs (holograms, VR lenses)</li>
+                        <li>Diffraction around buildings, edges, and coins</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="interactive-demo">
+                <h3>Fresnel Diffraction Simulation</h3>
+                <p>Adjust the parameters to see how Fresnel diffraction patterns form:</p>
+                
+                <div class="demo-controls">
+                    <div class="slider-container">
+                        <label for="wavelength">Wavelength: <span id="wavelength-value">550 nm</span></label>
+                        <input type="range" id="wavelength" min="400" max="700" value="550">
+                    </div>
+                    <div class="slider-container">
+                        <label for="slit-width">Slit Width: <span id="slit-width-value">0.1 mm</span></label>
+                        <input type="range" id="slit-width" min="50" max="200" value="100">
+                    </div>
+                    <button id="reset-fresnel">Reset</button>
+                </div>
+                
+                <div class="visualization-container">
+                    <canvas id="fresnel-canvas"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="fraunhofer">
+            <h2>Fraunhofer Diffraction — Light Behavior in the Far Field</h2>
+            <p>Developed by Joseph von Fraunhofer, who studied light using prisms and diffraction gratings, Fraunhofer diffraction occurs when the light source and screen are at a large distance, or lenses convert the waves into parallel rays.</p>
+            
+            <div class="content-grid">
+                <div>
+                    <h3>Key Concepts</h3>
+                    <div class="concept-list">
+                        <div class="concept-card">
+                            <h4>Plane Wavefronts</h4>
+                            <p>Incoming wavefronts become plane (flat), simplifying calculations.</p>
+                        </div>
+                        <div class="concept-card">
+                            <h4>Stable Patterns</h4>
+                            <p>Produces a clean, stable, symmetric diffraction pattern.</p>
+                        </div>
+                        <div class="concept-card">
+                            <h4>Final Pattern</h4>
+                            <p>Light has traveled far enough that wave curvature disappears.</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3>Real-Life Implementations</h3>
+                    <ul>
+                        <li>Spectrometers and wavelength measurement</li>
+                        <li>Diffraction gratings (CD/DVD rainbow colors)</li>
+                        <li>Telescope & microscope resolution calculations</li>
+                        <li>Laser beam shaping and optical communication</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="interactive-demo">
+                <h3>Fraunhofer Diffraction Simulation</h3>
+                <p>Explore how Fraunhofer diffraction creates distinct patterns:</p>
+                
+                <div class="demo-controls">
+                    <div class="slider-container">
+                        <label for="slit-count">Number of Slits: <span id="slit-count-value">1</span></label>
+                        <input type="range" id="slit-count" min="1" max="5" value="1">
+                    </div>
+                    <div class="slider-container">
+                        <label for="grating-spacing">Grating Spacing: <span id="grating-spacing-value">0.5 mm</span></label>
+                        <input type="range" id="grating-spacing" min="200" max="800" value="500">
+                    </div>
+                    <button id="reset-fraunhofer">Reset</button>
+                </div>
+                
+                <div class="visualization-container">
+                    <canvas id="fraunhofer-canvas"></canvas>
+                </div>
+                
+                <div class="demo-results">
+                    <div class="result-box">
+                        <h4>Central Maximum</h4>
+                        <p id="central-max">Bright central band where light waves constructively interfere.</p>
+                    </div>
+                    <div class="result-box">
+                        <h4>Side Fringes</h4>
+                        <p id="side-fringes">Secondary maxima with decreasing intensity on either side.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Interactive Physics Website - Fresnel & Fraunhofer Diffraction</p>
+        </div>
+    </footer>
+
+    <script>
+        // Main diffraction visualization
+        const canvas = document.getElementById('diffraction-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Fresnel diffraction visualization
+        const fresnelCanvas = document.getElementById('fresnel-canvas');
+        const fresnelCtx = fresnelCanvas.getContext('2d');
+        
+        // Fraunhofer diffraction visualization
+        const fraunhoferCanvas = document.getElementById('fraunhofer-canvas');
+        const fraunhoferCtx = fraunhoferCanvas.getContext('2d');
+        
+        // Set canvas dimensions
+        function setCanvasDimensions() {
+            const containers = document.querySelectorAll('.visualization-container');
+            containers.forEach(container => {
+                const canvas = container.querySelector('canvas');
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+            });
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            setCanvasDimensions();
+            drawDiffraction();
+            drawFresnel();
+            drawFraunhofer();
+        });
+        
+        window.addEventListener('resize', () => {
+            setCanvasDimensions();
+            drawDiffraction();
+            drawFresnel();
+            drawFraunhofer();
+        });
+        
+        // Main diffraction visualization
+        function drawDiffraction() {
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Get distance value
+            const distance = document.getElementById('distance').value;
+            const distanceValue = document.getElementById('distance-value');
+            
+            // Update distance label
+            if (distance == 1) distanceValue.textContent = "Near";
+            else if (distance == 2) distanceValue.textContent = "Medium";
+            else distanceValue.textContent = "Far";
+            
+            // Draw wave source
+            ctx.fillStyle = '#4a6fa5';
+            ctx.beginPath();
+            ctx.arc(50, height/2, 15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw obstacle
+            ctx.fillStyle = '#e6b89c';
+            ctx.fillRect(width/3, height/4, 10, height/2);
+            
+            // Draw wavefronts based on distance
+            ctx.strokeStyle = '#4a6fa5';
+            ctx.lineWidth = 2;
+            
+            if (distance == 1) { // Near field - curved wavefronts
+                for (let i = 0; i < 5; i++) {
+                    const radius = 50 + i * 40;
+                    ctx.beginPath();
+                    ctx.arc(50, height/2, radius, -Math.PI/2, Math.PI/2);
+                    ctx.stroke();
+                    
+                    // Draw diffraction after obstacle
+                    if (radius > width/3 - 50) {
+                        const diffRadius = radius - (width/3 - 50);
+                        ctx.beginPath();
+                        ctx.arc(width/3 + 10, height/2, diffRadius, -Math.PI/2, Math.PI/2);
+                        ctx.stroke();
+                    }
+                }
+                
+                // Draw irregular pattern on screen
+                ctx.fillStyle = '#7db9b6';
+                for (let i = 0; i < height; i += 10) {
+                    const intensity = Math.sin(i / 20) * Math.random() * 30 + 20;
+                    ctx.fillRect(width - 50, i, intensity, 5);
+                }
+            } else if (distance == 2) { // Medium field - transitioning
+                for (let i = 0; i < 5; i++) {
+                    const radius = 50 + i * 60;
+                    ctx.beginPath();
+                    ctx.arc(50, height/2, radius, -Math.PI/2, Math.PI/2);
+                    ctx.stroke();
+                    
+                    // Draw diffraction after obstacle
+                    if (radius > width/3 - 50) {
+                        const diffRadius = radius - (width/3 - 50);
+                        ctx.beginPath();
+                        ctx.arc(width/3 + 10, height/2, diffRadius, -Math.PI/2, Math.PI/2);
+                        ctx.stroke();
+                    }
+                }
+                
+                // Draw pattern on screen
+                ctx.fillStyle = '#7db9b6';
+                for (let i = 0; i < height; i += 10) {
+                    const intensity = Math.sin(i / 15) * 40 + 30;
+                    ctx.fillRect(width - 50, i, intensity, 5);
+                }
+            } else { // Far field - plane wavefronts
+                for (let i = 0; i < 5; i++) {
+                    const yOffset = i * 30;
+                    ctx.beginPath();
+                    ctx.moveTo(50, height/2 - 60 + yOffset);
+                    ctx.lineTo(width - 50, height/2 - 60 + yOffset);
+                    ctx.stroke();
+                }
+                
+                // Draw Fraunhofer pattern on screen
+                ctx.fillStyle = '#7db9b6';
+                for (let i = 0; i < height; i += 10) {
+                    const center = height/2;
+                    const distanceFromCenter = Math.abs(i - center);
+                    const intensity = 80 * Math.pow(Math.sin(distanceFromCenter / 20) / (distanceFromCenter / 20), 2);
+                    ctx.fillRect(width - 50, i, Math.max(intensity, 10), 5);
+                }
+            }
+            
+            // Draw screen
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(width - 50, 0);
+            ctx.lineTo(width - 50, height);
+            ctx.stroke();
+        }
+        
+        // Fresnel diffraction visualization
+        function drawFresnel() {
+            const width = fresnelCanvas.width;
+            const height = fresnelCanvas.height;
+            
+            // Clear canvas
+            fresnelCtx.clearRect(0, 0, width, height);
+            
+            // Get parameters
+            const wavelength = document.getElementById('wavelength').value;
+            const slitWidth = document.getElementById('slit-width').value;
+            
+            // Update labels
+            document.getElementById('wavelength-value').textContent = wavelength + " nm";
+            document.getElementById('slit-width-value').textContent = (slitWidth / 1000).toFixed(2) + " mm";
+            
+            // Draw light source
+            fresnelCtx.fillStyle = '#4a6fa5';
+            fresnelCtx.beginPath();
+            fresnelCtx.arc(50, height/2, 10, 0, Math.PI * 2);
+            fresnelCtx.fill();
+            
+            // Draw slit
+            const slitX = width/3;
+            const slitHeight = slitWidth / 1000 * 500; // Scale for visualization
+            fresnelCtx.fillStyle = '#333';
+            fresnelCtx.fillRect(slitX, height/2 - slitHeight/2, 5, slitHeight);
+            
+            // Draw curved wavefronts (Fresnel)
+            fresnelCtx.strokeStyle = '#4a6fa5';
+            fresnelCtx.lineWidth = 1;
+            
+            for (let i = 0; i < 8; i++) {
+                const radius = 40 + i * 35;
+                fresnelCtx.beginPath();
+                fresnelCtx.arc(50, height/2, radius, -Math.PI/3, Math.PI/3);
+                fresnelCtx.stroke();
+                
+                // Draw diffraction after slit
+                if (radius > slitX - 50) {
+                    const diffRadius = radius - (slitX - 50);
+                    fresnelCtx.beginPath();
+                    fresnelCtx.arc(slitX + 5, height/2, diffRadius, -Math.PI/2, Math.PI/2);
+                    fresnelCtx.stroke();
+                }
+            }
+            
+            // Draw irregular pattern on screen (Fresnel pattern)
+            fresnelCtx.fillStyle = '#7db9b6';
+            const screenX = width - 50;
+            
+            for (let y = 0; y < height; y += 8) {
+                // More complex pattern for Fresnel
+                const distanceFromCenter = Math.abs(y - height/2);
+                const baseIntensity = 50 * Math.sin(distanceFromCenter / 30) * 
+                                    Math.cos(distanceFromCenter / 15 + wavelength/100) *
+                                    (1 - distanceFromCenter / height);
+                
+                const noise = Math.random() * 10;
+                const intensity = Math.max(baseIntensity + noise, 5);
+                
+                fresnelCtx.fillRect(screenX, y, intensity, 6);
+            }
+            
+            // Draw screen
+            fresnelCtx.strokeStyle = '#333';
+            fresnelCtx.lineWidth = 2;
+            fresnelCtx.beginPath();
+            fresnelCtx.moveTo(screenX, 0);
+            fresnelCtx.lineTo(screenX, height);
+            fresnelCtx.stroke();
+        }
+        
+        // Fraunhofer diffraction visualization
+        function drawFraunhofer() {
+            const width = fraunhoferCanvas.width;
+            const height = fraunhoferCanvas.height;
+            
+            // Clear canvas
+            fraunhoferCtx.clearRect(0, 0, width, height);
+            
+            // Get parameters
+            const slitCount = document.getElementById('slit-count').value;
+            const gratingSpacing = document.getElementById('grating-spacing').value;
+            
+            // Update labels
+            document.getElementById('slit-count-value').textContent = slitCount;
+            document.getElementById('grating-spacing-value').textContent = (gratingSpacing / 1000).toFixed(2) + " mm";
+            
+            // Draw light source with plane waves (Fraunhofer)
+            fresnelCtx.fillStyle = '#4a6fa5';
+            
+            // Draw plane wavefronts
+            fraunhoferCtx.strokeStyle = '#4a6fa5';
+            fraunhoferCtx.lineWidth = 1;
+            
+            for (let i = 0; i < 5; i++) {
+                const yOffset = i * 30;
+                fraunhoferCtx.beginPath();
+                fraunhoferCtx.moveTo(50, height/2 - 60 + yOffset);
+                fraunhoferCtx.lineTo(width - 50, height/2 - 60 + yOffset);
+                fraunhoferCtx.stroke();
+            }
+            
+            // Draw diffraction grating
+            const gratingX = width/3;
+            const slitHeight = 100;
+            const spacing = gratingSpacing / 1000 * 50; // Scale for visualization
+            
+            fraunhoferCtx.fillStyle = '#333';
+            for (let i = 0; i < slitCount; i++) {
+                const centerY = height/2 - (slitCount-1)*spacing/2 + i*spacing;
+                fraunhoferCtx.fillRect(gratingX, centerY - slitHeight/2, 5, slitHeight);
+            }
+            
+            // Draw Fraunhofer pattern on screen
+            fraunhoferCtx.fillStyle = '#7db9b6';
+            const screenX = width - 50;
+            
+            for (let y = 0; y < height; y += 6) {
+                const distanceFromCenter = Math.abs(y - height/2);
+                
+                // Fraunhofer pattern formula (sinc^2 function)
+                let intensity;
+                if (slitCount == 1) {
+                    // Single slit
+                    const u = distanceFromCenter / 20;
+                    intensity = 80 * Math.pow(Math.sin(u) / u, 2);
+                } else {
+                    // Multiple slits - interference pattern
+                    const u = distanceFromCenter / 20;
+                    const v = distanceFromCenter / (10 / slitCount);
+                    intensity = 80 * Math.pow(Math.sin(u) / u, 2) * Math.pow(Math.sin(slitCount * v) / Math.sin(v), 2);
+                }
+                
+                // Avoid division by zero issues
+                if (isNaN(intensity)) intensity = 80;
+                
+                fraunhoferCtx.fillRect(screenX, y, Math.max(intensity, 5), 5);
+            }
+            
+            // Draw screen
+            fraunhoferCtx.strokeStyle = '#333';
+            fraunhoferCtx.lineWidth = 2;
+            fraunhoferCtx.beginPath();
+            fraunhoferCtx.moveTo(screenX, 0);
+            fraunhoferCtx.lineTo(screenX, height);
+            fraunhoferCtx.stroke();
+            
+            // Update result descriptions
+            document.getElementById('central-max').textContent = 
+                `Bright central maximum where waves from all ${slitCount} slit(s) constructively interfere.`;
+                
+            document.getElementById('side-fringes').textContent = 
+                `Secondary maxima with intensity modulated by the single-slit diffraction envelope.`;
+        }
+        
+        // Event listeners for main diffraction visualization
+        document.getElementById('distance').addEventListener('input', drawDiffraction);
+        
+        document.getElementById('toggle-wave').addEventListener('click', function() {
+            // This would toggle between wave and particle visualization in a more complex implementation
+            alert("Wave visualization toggled! In a full implementation, this would switch between different visualization modes.");
+        });
+        
+        // Event listeners for Fresnel diffraction
+        document.getElementById('wavelength').addEventListener('input', drawFresnel);
+        document.getElementById('slit-width').addEventListener('input', drawFresnel);
+        document.getElementById('reset-fresnel').addEventListener('click', function() {
+            document.getElementById('wavelength').value = 550;
+            document.getElementById('slit-width').value = 100;
+            drawFresnel();
+        });
+        
+        // Event listeners for Fraunhofer diffraction
+        document.getElementById('slit-count').addEventListener('input', drawFraunhofer);
+        document.getElementById('grating-spacing').addEventListener('input', drawFraunhofer);
+        document.getElementById('reset-fraunhofer').addEventListener('click', function() {
+            document.getElementById('slit-count').value = 1;
+            document.getElementById('grating-spacing').value = 500;
+            drawFraunhofer();
+        });
+    </script>
+</body>
+</html>

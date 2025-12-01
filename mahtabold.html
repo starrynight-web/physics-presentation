@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chapter 3: Optics – Polarized & Unpolarized Light</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    /* ===== PREMIUM LIGHT THEME WITH ANIMATIONS ===== */
+    :root {
+      --bg: #fcfdfd;
+      --text: #1f2937;
+      --heading: #0f172a;
+      --accent: #2563eb;
+      --accent-light: #dbeafe;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --border: #e2e8f0;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      --font-sans: 'Inter', system-ui, sans-serif;
+      --font-serif: 'DM Serif Display', serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* Hero Banner */
+    .hero {
+      background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+      padding: 4rem 1.5rem 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: var(--accent-light);
+      opacity: 0.3;
+      z-index: 0;
+    }
+
+    .hero::before {
+      top: -50px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      opacity: 0.3;
+    }
+
+    .hero::after {
+      bottom: -80px;
+      left: -60px;
+      width: 250px;
+      height: 250px;
+      opacity: 0.2;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s ease-out forwards 0.2s;
+    }
+
+    .hero h1 {
+      font-family: var(--font-serif);
+      font-size: 2.8rem;
+      font-weight: 400;
+      color: var(--heading);
+      margin-bottom: 0.5rem;
+    }
+
+    .hero h2 {
+      font-size: 1.4rem;
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    /* Content Layout */
+    .content {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    .section {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+      margin-bottom: 2.5rem;
+    }
+
+    .section.animate {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section h3 {
+      font-family: var(--font-serif);
+      font-size: 1.75rem;
+      color: var(--heading);
+      margin: 2.5rem 0 1.25rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    .section h3::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    .section p {
+      margin-bottom: 1rem;
+    }
+
+    /* Cards */
+    .two-column {
+      display: flex;
+      gap: 1.8rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      flex: 1;
+      min-width: 280px;
+      background: var(--card-bg);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 1.5rem;
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      opacity: 0;
+      transform: translateX(-20px);
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .two-column .card:nth-child(2) {
+      transform: translateX(20px);
+    }
+
+    .section.animate .card {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .card h4 {
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* Lists */
+    .properties-list, .methods-list {
+      padding-left: 1.5rem;
+      margin: 1.25rem 0;
+    }
+
+    .properties-list li,
+    .methods-list li {
+      margin-bottom: 0.9rem;
+      opacity: 0;
+      transform: translateX(-10px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .properties-list li.animate,
+    .methods-list li.animate {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .properties-list span,
+    .methods-list strong {
+      font-weight: 600;
+      color: var(--heading);
+    }
+
+    /* Comparison Section */
+    .comparison {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      margin: 1.8rem 0;
+      flex-wrap: wrap;
+    }
+
+    .vs {
+      font-family: var(--font-serif);
+      font-size: 1.4rem;
+      color: var(--accent);
+      font-weight: 400;
+      opacity: 0;
+      animation: pulse 2s infinite;
+    }
+
+    .section.animate .vs {
+      opacity: 1;
+    }
+
+    .contrast-item {
+      background: var(--card-bg);
+      padding: 1rem 1.4rem;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      min-width: 160px;
+      opacity: 0;
+      transform: scale(0.95);
+      transition: all 0.6s ease;
+    }
+
+    .section.animate .contrast-item {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .contrast-item h4 {
+      font-size: 1.1rem;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: #64748b;
+      font-size: 0.95rem;
+      border-top: 1px solid var(--border);
+      margin-top: 2rem;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.2rem; }
+      .hero h2 { font-size: 1.2rem; }
+      .two-column { flex-direction: column; }
+      .comparison { flex-direction: column; }
+      .vs { margin: 1rem 0; }
+      .section h3 { font-size: 1.5rem; }
+    }
+    table, th, td {
+    
+    border-collapse: collapse;
+}
+th, td {
+    padding: 15px;
+}
+
+p.ex {
+    width: 800px;
+}
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="hero-content">
+      <h1>Chapter 3: Optics</h1>
+      <h2>Properties of Polarized Light and Unpolarized Light</h2>
+    </div>
+  </div>
+
+  <main class="content">
+
+    <!-- Section I -->
+    <section class="section" data-animate>
+      <h3>I. Presentation Scope and Objective</h3>
+      <p>
+        This presentation explores the physical phenomenon of polarization in light—a core concept in Wave Optics.
+        It defines the fundamental distinction between polarized and unpolarized electromagnetic waves,
+        structured across four thematic sections: definitions, properties, comparisons, and practical applications.
+      </p>
+    </section>
+
+    <!-- Section 1 -->
+    <section class="section" data-animate>
+      <h3>1. Defining the States of Light</h3>
+      <div class="two-column">
+        <div class="card" data-animate>
+          <h4>Unpolarized Light</h4>
+          <p>
+            Light waves that vibrate randomly in all possible directions perpendicular to the direction of propagation.
+            Emitted by common sources such as sunlight, incandescent bulbs, candle flames, and most standard LEDs.
+          </p>
+        </div>
+        <div class="card" data-animate>
+          <h4>Polarized Light</h4>
+          <p>
+            Light in which the electric field oscillations are confined to a single plane perpendicular to the direction of propagation.
+            This behavior is possible because light is a transverse electromagnetic wave.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2 -->
+    <section class="section" data-animate>
+      <h3>2. Key Properties and Classification</h3>
+      
+      <p><strong>Unpolarized Light:</strong> Composed of short, randomly oriented wave trains with equal distribution across all polarization states.  
+        When passed through an ideal linear polarizer, it transmits exactly 50% of its original intensity.</p>
+
+      <p><strong>Polarized Light</strong> is classified by the trajectory of its electric field vector:</p>
+      
+      <ul class="properties-list">
+        <li data-animate><span>Linear Polarization:</span> Electric field oscillates in one fixed direction.</li>
+        <li data-animate><span>Circular Polarization:</span> Electric field rotates uniformly in a circular path.</li>
+        <li data-animate><span>Elliptical Polarization:</span> Electric field traces an elliptical path—the general case.</li>
+      </ul>
+
+      <p data-animate><em>Terminology:</em> The <strong>Plane of Vibration</strong> is where the electric field oscillates;  
+        the <strong>Plane of Polarization</strong> is perpendicular to it (a historical convention still used in optics).</p>
+    </section>
+
+    <!-- Section 3 -->
+    <section class="section" data-animate>
+      <h3>3. Comparison and Generation</h3>
+
+      <div class="comparison">
+        <div class="contrast-item" data-animate>
+          <h4>Unpolarized Light</h4>
+          <p>Random, uncorrelated orientations</p>
+        </div>
+        <div class="vs">VS</div>
+        <div class="contrast-item" data-animate>
+          <h4>Polarized Light</h4>
+          <p>Ordered, coherent orientation</p>
+        </div>
+      </div>
+
+      <h4 style="margin-top: 2rem;">Methods of Generating Polarized Light</h4>
+      <ol class="methods-list">
+        <li data-animate><strong>Transmission:</strong> Polaroid filters transmit only one polarization axis.</li>
+        <li data-animate><strong>Reflection:</strong> Partial polarization occurs at Brewster’s angle on dielectric surfaces.</li>
+        <li data-animate><strong>Birefringence:</strong> Crystals like calcite split light into two polarized components.</li>
+      </ol>
+    </section>
+
+    <!-- Section 4 -->
+    <section class="section" data-animate>
+      <h3>4. Practical Applications</h3>
+      <p>
+        From polarized sunglasses that reduce glare, to LCD screens, optical microscopy, fiber-optic communications,
+        and stress analysis in engineering materials—polarization underpins modern optical technology.
+      </p>
+    </section>
+</center>
+</div>
+<br><br>
+<FONT size="6"  face="Helvetica" >
+
+Polarization of Light<br>
+
+
+
+
+</center></font>
+
+<iframe scrolling="no" src="https://www.geogebra.org/material/iframe/id/8047/width/1050/height/550/border/888888/rc/false/ai/false/sdz/false/smb/false/stb/false/stbh/true/ld/false/sri/true/at/auto" width="1050px" height="550px" style="border:0px;"> </iframe>
+
+
+
+</td></tr>
+<tr><td>
+<p class="ex">
+  </main>
+
+  <footer class="footer">
+    <p>© 2025 Physics Presentation | Chapter 3: Optics</p>
+  </footer>
+
+  <!-- Scroll Animation Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate');
+            // Animate list items individually
+            if (entry.target.classList.contains('properties-list') || entry.target.classList.contains('methods-list')) {
+              entry.target.querySelectorAll('li').forEach((li, i) => {
+                setTimeout(() => li.classList.add('animate'), i * 150);
+              });
+            }
+          }
+        });
+      }, { threshold: 0.15 });
+
+      document.querySelectorAll('[data-animate]').forEach(el => {
+        observer.observe(el);
+      });
+    });
+  </script>
+</body>
+</html>

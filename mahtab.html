@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chapter 3: Optics – Polarized & Unpolarized Light</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --deep-blue: #1a237e;
+        --electric-blue: #2962ff;
+        --light-blue: #bbdefb;
+        --white: #ffffff;
+        --accent: #ff6d00;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--white);
+        color: var(--deep-blue);
+        overflow-x: hidden;
+      }
+
+      header {
+        background: linear-gradient(
+          135deg,
+          var(--deep-blue) 0%,
+          var(--electric-blue) 100%
+        );
+        color: white;
+        padding: 3rem 2rem;
+        text-align: center;
+      }
+
+      h1 {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(2.5rem, 6vw, 4rem);
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 1rem;
+      }
+
+      .header-subtitle {
+        font-size: clamp(1rem, 2vw, 1.3rem);
+        font-weight: 300;
+        opacity: 0.9;
+      }
+
+      section {
+        max-width: 1000px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--light-blue);
+      }
+
+      h2 {
+        font-family: "Playfair Display", serif;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--deep-blue);
+        border-bottom: 2px solid var(--electric-blue);
+        padding-bottom: 0.5rem;
+      }
+
+      h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--deep-blue);
+      }
+
+      p {
+        line-height: 1.6;
+        margin-bottom: 1rem;
+      }
+
+      strong {
+        color: var(--electric-blue);
+      }
+
+      .two-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-top: 1.5rem;
+      }
+
+      .card {
+        background: #f8fafc;
+        padding: 2rem;
+        border-radius: 12px;
+        border: 1px solid var(--light-blue);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .card h4 {
+        color: var(--electric-blue);
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+      }
+
+      .comparison {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+      }
+
+      .vs {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      .contrast-item {
+        background: #f8fafc;
+        padding: 1.5rem;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--light-blue);
+        min-width: 200px;
+      }
+
+      .contrast-item h4 {
+        color: var(--electric-blue);
+        margin-bottom: 0.5rem;
+      }
+
+      .properties-list,
+      .methods-list {
+        padding-left: 1.5rem;
+        margin: 1.5rem 0;
+      }
+
+      .properties-list li,
+      .methods-list li {
+        margin-bottom: 1rem;
+      }
+
+      .properties-list span,
+      .methods-list strong {
+        font-weight: 600;
+        color: var(--electric-blue);
+      }
+
+      .formula {
+        background: #fef9e7;
+        padding: 20px;
+        border-left: 5px solid var(--accent);
+        margin: 20px 0;
+        font-family: monospace;
+        font-size: 1.1em;
+        border-radius: 0 8px 8px 0;
+      }
+
+      footer {
+        text-align: center;
+        padding: 2rem;
+        background: var(--deep-blue);
+        color: white;
+        margin-top: 3rem;
+      }
+
+      iframe {
+        width: 100%;
+        border: 2px solid var(--electric-blue);
+        border-radius: 10px;
+        margin: 2rem 0;
+      }
+
+      @media (max-width: 768px) {
+        section {
+          padding: 1.5rem;
+          margin: 1.5rem;
+        }
+
+        .two-column {
+          grid-template-columns: 1fr;
+        }
+
+        .comparison {
+          flex-direction: column;
+        }
+
+        .vs {
+          margin: 1rem 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Polarized & Unpolarized Light</h1>
+      <p class="header-subtitle">Interactive Physics Presentation</p>
+    </header>
+
+    <main>
+      <!-- Section I -->
+      <section>
+        <h2>I. Presentation Scope and Objective</h2>
+        <p>
+          This presentation explores the physical phenomenon of polarization in
+          light—a core concept in Wave Optics. It defines the fundamental
+          distinction between polarized and unpolarized electromagnetic waves,
+          structured across four thematic sections: definitions, properties,
+          comparisons, and practical applications.
+        </p>
+      </section>
+
+      <!-- Section 1 -->
+      <section>
+        <h2>1. Defining the States of Light</h2>
+        <div class="two-column">
+          <div class="card">
+            <h4>Unpolarized Light</h4>
+            <p>
+              Light waves that vibrate randomly in all possible directions
+              perpendicular to the direction of propagation. Emitted by common
+              sources such as sunlight, incandescent bulbs, candle flames, and
+              most standard LEDs.
+            </p>
+          </div>
+          <div class="card">
+            <h4>Polarized Light</h4>
+            <p>
+              Light in which the electric field oscillations are confined to a
+              single plane perpendicular to the direction of propagation. This
+              behavior is possible because light is a transverse electromagnetic
+              wave.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2 -->
+      <section>
+        <h2>2. Key Properties and Classification</h2>
+
+        <p>
+          <strong>Unpolarized Light:</strong> Composed of short, randomly
+          oriented wave trains with equal distribution across all polarization
+          states. When passed through an ideal linear polarizer, it transmits
+          exactly 50% of its original intensity.
+        </p>
+
+        <p>
+          <strong>Polarized Light</strong> is classified by the trajectory of
+          its electric field vector:
+        </p>
+
+        <ul class="properties-list">
+          <li>
+            <span>Linear Polarization:</span> Electric field oscillates in one
+            fixed direction.
+          </li>
+          <li>
+            <span>Circular Polarization:</span> Electric field rotates uniformly
+            in a circular path.
+          </li>
+          <li>
+            <span>Elliptical Polarization:</span> Electric field traces an
+            elliptical path—the general case.
+          </li>
+        </ul>
+
+        <p>
+          <em>Terminology:</em> The <strong>Plane of Vibration</strong> is where
+          the electric field oscillates; the
+          <strong>Plane of Polarization</strong> is perpendicular to it (a
+          historical convention still used in optics).
+        </p>
+      </section>
+
+      <!-- Section 3 -->
+      <section>
+        <h2>3. Comparison and Generation</h2>
+
+        <div class="comparison">
+          <div class="contrast-item">
+            <h4>Unpolarized Light</h4>
+            <p>Random, uncorrelated orientations</p>
+          </div>
+          <div class="vs">VS</div>
+          <div class="contrast-item">
+            <h4>Polarized Light</h4>
+            <p>Ordered, coherent orientation</p>
+          </div>
+        </div>
+
+        <h3>Methods of Generating Polarized Light</h3>
+        <ol class="methods-list">
+          <li>
+            <strong>Transmission:</strong> Polaroid filters transmit only one
+            polarization axis.
+          </li>
+          <li>
+            <strong>Reflection:</strong> Partial polarization occurs at
+            Brewster's angle on dielectric surfaces.
+          </li>
+          <li>
+            <strong>Birefringence:</strong> Crystals like calcite split light
+            into two polarized components.
+          </li>
+        </ol>
+      </section>
+
+      <!-- Section 4 -->
+      <section>
+        <h2>4. Practical Applications</h2>
+        <p>
+          From polarized sunglasses that reduce glare, to LCD screens, optical
+          microscopy, fiber-optic communications, and stress analysis in
+          engineering materials—polarization underpins modern optical
+          technology.
+        </p>
+      </section>
+
+      <section>
+        <h2>Polarization of Light</h2>
+        <iframe
+          scrolling="no"
+          src="https://www.geogebra.org/material/iframe/id/8047/width/1050/height/550/border/888888/rc/false/ai/false/sdz/false/smb/false/stb/false/stbh/true/ld/false/sri/true/at/auto"
+          height="550px"
+          style="border: 0px"
+        >
+        </iframe>
+      </section>
+    </main>
+
+    <!-- Navigation Buttons -->
+    <section
+      style="
+        text-align: center;
+        padding: 2rem;
+        max-width: 1000px;
+        margin: 2rem auto;
+      "
+    >
+      <a
+        href="sayma.html"
+        style="
+          display: inline-block;
+          padding: 0.75rem 1.5rem;
+          background: var(--electric-blue);
+          color: white;
+          text-decoration: none;
+          border-radius: 25px;
+          font-weight: 600;
+          margin: 0 0.5rem;
+          transition: all 0.3s ease;
+        "
+        >← Back to Fresnel vs Fraunhofer</a
+      >
+      <a
+        href="index.html"
+        style="
+          display: inline-block;
+          padding: 0.75rem 1.5rem;
+          background: var(--accent);
+          color: white;
+          text-decoration: none;
+          border-radius: 25px;
+          font-weight: 600;
+          margin: 0 0.5rem;
+          transition: all 0.3s ease;
+        "
+        >Back to Home</a
+      >
+      <a
+        href="eashan.html"
+        style="
+          display: inline-block;
+          padding: 0.75rem 1.5rem;
+          background: var(--deep-blue);
+          color: white;
+          text-decoration: none;
+          border-radius: 25px;
+          font-weight: 600;
+          margin: 0 0.5rem;
+          transition: all 0.3s ease;
+        "
+        >Next: Brewster's Law →</a
+      >
+    </section>
+
+    <footer>
+      <p>© 2025 Physics Presentation | Chapter 3: Optics</p>
+    </footer>
+  </body>
+</html>
