@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diffraction Explorer: Fresnel vs. Fraunhofer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #1a252f;
+            --success: #2ecc71;
+            --warning: #f39c12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .intro {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin: 2rem 0;
+        }
+        
+        .simulator-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .controls {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .simulation {
+            flex: 2;
+            min-width: 500px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        .control-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .control-group h3 {
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .slider-container label {
+            min-width: 120px;
+            font-weight: 500;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+        }
+        
+        .value-display {
+            min-width: 60px;
+            text-align: right;
+            font-weight: 500;
+        }
+        
+        select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            font-size: 1rem;
+        }
+        
+        .fresnel-number {
+            background-color: var(--light);
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .fresnel-fraunhofer {
+            color: var(--accent);
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .comparison-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .card-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .card-content {
+            padding: 1.5rem;
+        }
+        
+        .feature-list {
+            list-style-type: none;
+        }
+        
+        .feature-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .math-section {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin: 2rem 0;
+        }
+        
+        .math-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .example-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .example-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .example-image {
+            height: 180px;
+            background-color: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--secondary);
+        }
+        
+        .example-content {
+            padding: 1.5rem;
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+        
+        @media (max-width: 768px) {
+            .simulator-container, .comparison {
+                flex-direction: column;
+            }
+            
+            .simulation, .controls {
+                min-width: 100%;
+            }
+            
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Diffraction Explorer</h1>
+            <p class="subtitle">Understanding the Difference Between Fresnel and Fraunhofer Diffraction</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="intro">
+            <h2>Introduction to Diffraction</h2>
+            <p>Diffraction is a wave phenomenon that occurs when a wave encounters an obstacle or aperture. The behavior of diffracted waves depends on the relative distances and sizes involved, leading to two primary regimes: Fresnel (near-field) and Fraunhofer (far-field) diffraction.</p>
+            <p>The key parameter that determines the diffraction regime is the <strong>Fresnel Number</strong>:</p>
+            <div style="text-align: center; margin: 1rem 0;">
+                <p>\[ F = \frac{a^2}{L\lambda} \]</p>
+            </div>
+            <p>Where \(a\) is the aperture size, \(L\) is the distance to the screen, and \(\lambda\) is the wavelength of light.</p>
+            <ul>
+                <li><strong>Fresnel Diffraction</strong> (\(F \gg 1\)): Occurs when the observation screen is close to the aperture, and wavefront curvature is significant.</li>
+                <li><strong>Fraunhofer Diffraction</strong> (\(F \ll 1\)): Occurs when the observation screen is far from the aperture, and wavefronts can be approximated as planar.</li>
+            </ul>
+        </section>
+
+        <section class="simulator-container">
+            <div class="controls">
+                <h2>Diffraction Simulator</h2>
+                
+                <div class="control-group">
+                    <h3>Aperture Parameters</h3>
+                    
+                    <div class="slider-container">
+                        <label for="aperture-size">Aperture Size (a):</label>
+                        <input type="range" id="aperture-size" min="10" max="1000" value="200">
+                        <div class="value-display" id="aperture-size-value">200 μm</div>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <label for="distance">Distance (L):</label>
+                        <input type="range" id="distance" min="10" max="1000" value="300">
+                        <div class="value-display" id="distance-value">300 mm</div>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <label for="wavelength">Wavelength (λ):</label>
+                        <input type="range" id="wavelength" min="400" max="700" value="550">
+                        <div class="value-display" id="wavelength-value">550 nm</div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Aperture Type</h3>
+                    <select id="aperture-type">
+                        <option value="single-slit">Single Slit</option>
+                        <option value="double-slit">Double Slit</option>
+                        <option value="circular">Circular Aperture</option>
+                        <option value="obstacle">Circular Obstacle</option>
+                    </select>
+                </div>
+                
+                <div class="fresnel-number">
+                    <p>Fresnel Number: <span id="fresnel-number-value">0.61</span></p>
+                    <p class="fresnel-fraunhofer" id="regime-indicator">Fraunhofer Regime (F < 1)</p>
+                </div>
+            </div>
+            
+            <div class="simulation">
+                <div id="simulation-canvas"></div>
+            </div>
+        </section>
+
+        <section class="comparison">
+            <div class="comparison-card">
+                <div class="card-header">
+                    <h2>Fresnel Diffraction</h2>
+                    <p>Near-Field Diffraction</p>
+                </div>
+                <div class="card-content">
+                    <ul class="feature-list">
+                        <li><strong>Observation:</strong> Screen at finite distance</li>
+                        <li><strong>Wavefronts:</strong> Spherical or cylindrical curvature</li>
+                        <li><strong>Pattern:</strong> Changes shape and size with distance</li>
+                        <li><strong>Complexity:</strong> Richer, more complex patterns</li>
+                        <li><strong>Mathematics:</strong> Fresnel integrals, convolution</li>
+                        <li><strong>Example:</strong> Poisson's spot behind circular obstacle</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="comparison-card">
+                <div class="card-header">
+                    <h2>Fraunhofer Diffraction</h2>
+                    <p>Far-Field Diffraction</p>
+                </div>
+                <div class="card-content">
+                    <ul class="feature-list">
+                        <li><strong>Observation:</strong> Effectively infinite distance</li>
+                        <li><strong>Wavefronts:</strong> Planar (flat) wavefronts</li>
+                        <li><strong>Pattern:</strong> Shape constant, only scales in size</li>
+                        <li><strong>Complexity:</strong> Simpler, more regular patterns</li>
+                        <li><strong>Mathematics:</strong> Fourier transform of aperture</li>
+                        <li><strong>Example:</strong> Laser diffraction through slits</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="math-section">
+            <h2>Mathematical Foundation</h2>
+            <p>Both Fresnel and Fraunhofer diffraction originate from the Huygens-Fresnel principle, where every point on a wavefront is a source of secondary wavelets.</p>
+            
+            <h3>Fresnel Diffraction Integral</h3>
+            <p>The field at a point is given by:</p>
+            <p>\[ U(x,y) = \frac{1}{i\lambda} \iint U_0(x',y') \frac{e^{ikr}}{r} dx' dy' \]</p>
+            <p>Using the Fresnel approximation (\(r \approx z + \frac{(x-x')^2 + (y-y')^2}{2z}\)):</p>
+            <p>\[ U(x,y) = \frac{e^{ikz}}{i\lambda z} \iint U_0(x',y') e^{\frac{ik}{2z}[(x-x')^2+(y-y')^2]} dx' dy' \]</p>
+            
+            <h3>Fraunhofer Approximation</h3>
+            <p>When \(z \gg \frac{k(x'^2 + y'^2)_{max}}{2}\), the quadratic phase factor becomes negligible:</p>
+            <p>\[ U(x,y) = \frac{e^{ikz}}{i\lambda z} e^{\frac{ik}{2z}(x^2+y^2)} \iint U_0(x',y') e^{-i\frac{2\pi}{\lambda z}(xx'+yy')} dx' dy' \]</p>
+            <p>This shows that the Fraunhofer diffraction pattern is the <strong>Fourier transform</strong> of the aperture function.</p>
+        </section>
+
+        <section>
+            <h2>Practical Examples</h2>
+            <div class="examples">
+                <div class="example-card">
+                    <div class="example-image">🔦</div>
+                    <div class="example-content">
+                        <h3>Poisson's Spot</h3>
+                        <p>A brilliant example of Fresnel diffraction where a bright spot appears in the center of the shadow of a circular obstacle, confirming the wave theory of light.</p>
+                    </div>
+                </div>
+                
+                <div class="example-card">
+                    <div class="example-image">💿</div>
+                    <div class="example-content">
+                        <h3>CD/DVD Diffraction</h3>
+                        <p>The rainbow patterns seen on CDs and DVDs are examples of Fraunhofer diffraction, where the closely spaced tracks act as a diffraction grating.</p>
+                    </div>
+                </div>
+                
+                <div class="example-card">
+                    <div class="example-image">🔍</div>
+                    <div class="example-content">
+                        <h3>Laser Diffraction</h3>
+                        <p>When a laser beam passes through a small aperture or slit, the resulting pattern on a distant screen demonstrates Fraunhofer diffraction.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Diffraction Explorer &copy; 2023 | A Physics Education Tool</p>
+        </div>
+    </footer>
+
+    <script>
+        // Simulation parameters
+        let apertureSize = 200; // micrometers
+        let distance = 300; // mm
+        let wavelength = 550; // nanometers
+        let apertureType = 'single-slit';
+        
+        // DOM elements
+        const apertureSizeSlider = document.getElementById('aperture-size');
+        const apertureSizeValue = document.getElementById('aperture-size-value');
+        const distanceSlider = document.getElementById('distance');
+        const distanceValue = document.getElementById('distance-value');
+        const wavelengthSlider = document.getElementById('wavelength');
+        const wavelengthValue = document.getElementById('wavelength-value');
+        const apertureTypeSelect = document.getElementById('aperture-type');
+        const fresnelNumberValue = document.getElementById('fresnel-number-value');
+        const regimeIndicator = document.getElementById('regime-indicator');
+        
+        // Update displayed values when sliders change
+        apertureSizeSlider.addEventListener('input', function() {
+            apertureSize = parseInt(this.value);
+            apertureSizeValue.textContent = apertureSize + ' μm';
+            updatn();
+        });
+        
+        distanceSlider.addEventListener('input', function() {
+            distance = parseInt(this.value);
+            distanceValue.textContent = distance + ' mm';
+            updateSimulation();
+        });
+        
+        wavelengthSlider.addEventListener('input', function() {
+            wavelength = parseInt(this.value);
+            wavelengthValue.textContent = wavelength + ' nm';
+            updateSimulation();
+        });
+        
+        apertureTypeSelect.addEventListener('change', function() {
+            apertureType = this.value;
+            updateSimulation();
+        });
+        
+        // Calculate Fresnel number and update display
+        function calculateFresnelNumber() {
+            // Convert to consistent units (meters)
+            const a = apertureSize * 1e-6; // meters
+            const L = distance * 1e-3; // meters
+            const lambda = wavelength * 1e-9; // meters
+            
+            const F = (a * a) / (L * lambda);
+            fresnelNumberValue.textContent = F.toFixed(2);
+            
+            if (F > 1) {
+                regimeIndicator.textContent = "Fresnel Regime (F > 1)";
+                regimeIndicator.style.color = "var(--accent)";
+            } else {
+                regimeIndicator.textContent = "Fraunhofer Regime (F < 1)";
+                regimeIndicator.style.color = "var(--secondary)";
+            }
+            
+            return F;
+        }
+        
+        // p5.js simulation
+        function setup() {
+            const canvas = createCanvas(600, 400);
+            canvas.parent('simulation-canvas');
+            colorMode(HSB, 360, 100, 100, 1);
+        }
+        
+        function draw() {
+            background(0, 0, 95);
+            
+            // Draw the setup
+            drawSetup();
+            
+            // Calculate and draw the diffraction pattern
+            drawDiffractionPattern();
+        }
+        
+        function drawSetup() {
+            // Light source
+            fill(60, 80, 100);
+            ellipse(50, height/2, 30, 30);
+            
+            // Aperture
+            stroke(0);
+            strokeWeight(2);
+            fill(40, 20, 60);
+            rect(150, height/2 - 50, 10, 100);
+            
+            // Draw the aperture type
+            fill(0, 80, 100);
+            noStroke();
+            
+            if (apertureType === 'single-slit') {
+                rect(145, height/2 - apertureSize/10, 20, apertureSize/10);
+            } else if (apertureType === 'double-slit') {
+                const slitWidth = apertureSize/20;
+                rect(145, height/2 - apertureSize/5, 20, slitWidth);
+                rect(145, height/2 + apertureSize/5 - slitWidth, 20, slitWidth);
+            } else if (apertureType === 'circular') {
+                ellipse(160, height/2, apertureSize/10, apertureSize/10);
+            } else if (apertureType === 'obstacle') {
+                ellipse(160, height/2, apertureSize/10, apertureSize/10);
+                fill(40, 20, 60);
+                ellipse(160, height/2, apertureSize/12, apertureSize/12);
+            }
+            
+            // Screen
+            stroke(0);
+            strokeWeight(2);
+            line(400, 50, 400, height - 50);
+            
+            // Labels
+            fill(0);
+            noStroke();
+            textSize(12);
+            text("Light Source", 30, height/2 - 30);
+            text("Aperture", 140, height/2 - 70);
+            text("Screen", 410, 40);
+            
+            // Distance indicator
+            stroke(200);
+            strokeWeight(1);
+            line(160, height/2, 400, height/2);
+            text("L = " + distance + " mm", 250, height/2 - 10);
+        }
+        
+        function drawDiffractionPattern() {
+            const F = calculateFresnelNumber();
+            const patternStartX = 410;
+            const patternWidth = 180;
+            const patternHeight = 150;
+            const centerY = height/2;
+            
+            // Draw pattern background
+            fill(0, 0, 100);
+            stroke(200);
+            rect(patternStartX, centerY - patternHeight/2, patternWidth, patternHeight);
+            
+            // Draw diffraction pattern based on parameters
+            noFill();
+            stroke(30, 80, 100);
+            strokeWeight(2);
+            
+            beginShape();
+            for (let x = 0; x <= patternWidth; x++) {
+                const screenPos = map(x, 0, patternWidth, -patternWidth/2, patternWidth/2);
+                let intensity;
+                
+                if (apertureType === 'single-slit') {
+                    // Single slit diffraction pattern
+                    const beta = (PI * apertureSize/100 * screenPos) / (wavelength/100 * distance);
+                    if (beta === 0) {
+                        intensity = 1;
+                    } else {
+                        intensity = pow(sin(beta) / beta, 2);
+                    }
+                } else if (apertureType === 'double-slit') {
+                    // Double slit diffraction pattern
+                    const beta = (PI * apertureSize/200 * screenPos) / (wavelength/100 * distance);
+                    const alpha = (PI * apertureSize/50 * screenPos) / (wavelength/100 * distance);
+                    intensity = pow(cos(alpha), 2) * (beta === 0 ? 1 : pow(sin(beta) / beta, 2));
+                } else if (apertureType === 'circular') {
+                    // Circular aperture diffraction pattern (Airy pattern)
+                    const gamma = (2 * PI * apertureSize/100 * screenPos) / (wavelength/100 * distance);
+                    if (gamma === 0) {
+                        intensity = 1;
+                    } else {
+                        // Approximation of J1(gamma)/gamma using first few terms
+                        intensity = pow((2 * j1(gamma) / gamma), 2);
+                    }
+                } else if (apertureType === 'obstacle') {
+                    // Circular obstacle - Poisson's spot
+                    const gamma = (2 * PI * apertureSize/100 * screenPos) / (wavelength/100 * distance);
+                    if (F > 1 && abs(screenPos) < 5) {
+                        // Bright spot in center for Fresnel regime
+                        intensity = 0.8;
+                    } else {
+                        intensity = 0.2 * (1 + 0.5 * sin(gamma/2));
+                    }
+                }
+                
+                // Adjust intensity based on Fresnel number
+                if (F > 1) {
+                    // Fresnel regime - more complex pattern
+                    intensity *= (0.7 + 0.3 * sin(screenPos * 0.1));
+                }
+                
+                const y = centerY - intensity * patternHeight/2;
+                vertex(patternStartX + x, y);
+            }
+            endShape();
+        }
+        
+        // Bessel function approximation J1(x)
+        function j1(x) {
+            if (x === 0) return 0;
+            // Approximation using first few terms of series expansion
+            return (x/2) * (1 - (x*x)/8 + (x*x*x*x)/192 - (x*x*x*x*x*x)/9216);
+        }
+        
+        function updateSimulation() {
+            // Trigger redraw of the simulation
+            redraw();
+        }
+        
+        // Initialize the simulation
+        updateSimulation();
+    </script>
+</body>
+</html>
