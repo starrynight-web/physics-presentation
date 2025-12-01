@@ -354,52 +354,6 @@
           </div>
         </div>
       </div>
-
-      <div class="interactive-demo">
-        <h3>Interactive: See the Difference</h3>
-        <p>
-          Adjust the distance between the obstacle and screen to see how the
-          diffraction pattern changes:
-        </p>
-
-        <div class="controls">
-          <div class="control-group">
-            <label for="distance">Distance:</label>
-            <input
-              type="range"
-              id="distance"
-              min="1"
-              max="3"
-              value="2"
-              step="1"
-            />
-            <span class="value" id="distance-value">Medium</span>
-          </div>
-
-          <div class="button-group">
-            <button id="toggle-wave">Toggle Wave Visualization</button>
-          </div>
-        </div>
-
-        <div class="visualization-container">
-          <canvas id="diffraction-canvas"></canvas>
-        </div>
-
-        <div class="legend">
-          <div class="legend-item">
-            <div class="color-box" style="background-color: #4a6fa5"></div>
-            <span>Wavefront</span>
-          </div>
-          <div class="legend-item">
-            <div class="color-box" style="background-color: #e6b89c"></div>
-            <span>Obstacle</span>
-          </div>
-          <div class="legend-item">
-            <div class="color-box" style="background-color: #7db9b6"></div>
-            <span>Diffraction Pattern</span>
-          </div>
-        </div>
-      </div>
     </section>
 
     <section id="fresnel">
@@ -441,45 +395,12 @@
         </div>
       </div>
 
-      <div class="interactive-demo">
-        <h3>Fresnel Diffraction Simulation</h3>
-        <p>
-          Adjust the parameters to see how Fresnel diffraction patterns form:
-        </p>
-
-        <div class="controls">
-          <div class="control-group">
-            <label for="wavelength">Wavelength:</label>
-            <input
-              type="range"
-              id="wavelength"
-              min="400"
-              max="700"
-              value="550"
-            />
-            <span class="value" id="wavelength-value">550 nm</span>
-          </div>
-
-          <div class="control-group">
-            <label for="slit-width">Slit Width:</label>
-            <input
-              type="range"
-              id="slit-width"
-              min="50"
-              max="200"
-              value="100"
-            />
-            <span class="value" id="slit-width-value">0.1 mm</span>
-          </div>
-
-          <div class="button-group">
-            <button id="reset-fresnel">Reset</button>
-          </div>
-        </div>
-
-        <div class="visualization-container">
-          <canvas id="fresnel-canvas"></canvas>
-        </div>
+      <div class="visualization-container">
+        <img
+          src="hole_anim.gif"
+          alt="Fresnel near-field diffraction"
+          style="width: 100%; height: 100%; object-fit: cover"
+        />
       </div>
     </section>
 
@@ -526,51 +447,30 @@
         </div>
       </div>
 
-      <div class="interactive-demo">
-        <h3>Fraunhofer Diffraction Simulation</h3>
-        <p>Explore how Fraunhofer diffraction creates distinct patterns:</p>
-
-        <div class="controls">
-          <div class="control-group">
-            <label for="slit-count">Number of Slits:</label>
-            <input type="range" id="slit-count" min="1" max="5" value="1" />
-            <span class="value" id="slit-count-value">1</span>
-          </div>
-
-          <div class="control-group">
-            <label for="grating-spacing">Grating Spacing:</label>
-            <input
-              type="range"
-              id="grating-spacing"
-              min="200"
-              max="800"
-              value="500"
-            />
-            <span class="value" id="grating-spacing-value">0.5 mm</span>
-          </div>
-
-          <div class="button-group">
-            <button id="reset-fraunhofer">Reset</button>
-          </div>
-        </div>
-
+      <div class="content-grid">
         <div class="visualization-container">
-          <canvas id="fraunhofer-canvas"></canvas>
+          <img
+            src="Fraunhofer-diffraction-of-single-slit.png"
+            alt="Fraunhofer single-slit diffraction diagram"
+            style="
+              width: 100%;
+              height: 100%;
+              object-fit: contain;
+              background: #fff;
+            "
+          />
         </div>
-
-        <div class="demo-results">
-          <div class="result-box">
-            <h4>Central Maximum</h4>
-            <p id="central-max">
-              Bright central band where light waves constructively interfere.
-            </p>
-          </div>
-          <div class="result-box">
-            <h4>Side Fringes</h4>
-            <p id="side-fringes">
-              Secondary maxima with decreasing intensity on either side.
-            </p>
-          </div>
+        <div class="visualization-container">
+          <img
+            src="Fraunhofer diffraction due to a single slit.jpg"
+            alt="Fraunhofer single-slit diffraction photograph"
+            style="
+              width: 100%;
+              height: 100%;
+              object-fit: contain;
+              background: #fff;
+            "
+          />
         </div>
       </div>
     </section>
@@ -635,390 +535,398 @@
     </footer>
 
     <script>
-      // Main diffraction visualization
-      const canvas = document.getElementById("diffraction-canvas");
-      const ctx = canvas.getContext("2d");
+      if (document.getElementById("diffraction-canvas")) {
+        // Main diffraction visualization
+        const canvas = document.getElementById("diffraction-canvas");
+        const ctx = canvas.getContext("2d");
 
-      // Fresnel diffraction visualization
-      const fresnelCanvas = document.getElementById("fresnel-canvas");
-      const fresnelCtx = fresnelCanvas.getContext("2d");
+        // Fresnel diffraction visualization
+        const fresnelCanvas = document.getElementById("fresnel-canvas");
+        const fresnelCtx = fresnelCanvas.getContext("2d");
 
-      // Fraunhofer diffraction visualization
-      const fraunhoferCanvas = document.getElementById("fraunhofer-canvas");
-      const fraunhoferCtx = fraunhoferCanvas.getContext("2d");
+        // Fraunhofer diffraction visualization
+        const fraunhoferCanvas = document.getElementById("fraunhofer-canvas");
+        const fraunhoferCtx = fraunhoferCanvas.getContext("2d");
 
-      // Set canvas dimensions
-      function setCanvasDimensions() {
-        const containers = document.querySelectorAll(
-          ".visualization-container"
-        );
-        containers.forEach((container) => {
-          const canvas = container.querySelector("canvas");
-          canvas.width = container.clientWidth;
-          canvas.height = container.clientHeight;
+        // Set canvas dimensions
+        function setCanvasDimensions() {
+          const containers = document.querySelectorAll(
+            ".visualization-container"
+          );
+          containers.forEach((container) => {
+            const canvas = container.querySelector("canvas");
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+          });
+        }
+
+        // Initialize
+        window.addEventListener("load", () => {
+          setCanvasDimensions();
+          drawDiffraction();
+          drawFresnel();
+          drawFraunhofer();
         });
-      }
 
-      // Initialize
-      window.addEventListener("load", () => {
-        setCanvasDimensions();
-        drawDiffraction();
-        drawFresnel();
-        drawFraunhofer();
-      });
+        window.addEventListener("resize", () => {
+          setCanvasDimensions();
+          drawDiffraction();
+          drawFresnel();
+          drawFraunhofer();
+        });
 
-      window.addEventListener("resize", () => {
-        setCanvasDimensions();
-        drawDiffraction();
-        drawFresnel();
-        drawFraunhofer();
-      });
+        // Main diffraction visualization
+        function drawDiffraction() {
+          const width = canvas.width;
+          const height = canvas.height;
 
-      // Main diffraction visualization
-      function drawDiffraction() {
-        const width = canvas.width;
-        const height = canvas.height;
+          // Clear canvas
+          ctx.clearRect(0, 0, width, height);
 
-        // Clear canvas
-        ctx.clearRect(0, 0, width, height);
+          // Get distance value
+          const distance = document.getElementById("distance").value;
+          const distanceValue = document.getElementById("distance-value");
 
-        // Get distance value
-        const distance = document.getElementById("distance").value;
-        const distanceValue = document.getElementById("distance-value");
+          // Update distance label
+          if (distance == 1) distanceValue.textContent = "Near";
+          else if (distance == 2) distanceValue.textContent = "Medium";
+          else distanceValue.textContent = "Far";
 
-        // Update distance label
-        if (distance == 1) distanceValue.textContent = "Near";
-        else if (distance == 2) distanceValue.textContent = "Medium";
-        else distanceValue.textContent = "Far";
+          // Draw wave source
+          ctx.fillStyle = "#4a6fa5";
+          ctx.beginPath();
+          ctx.arc(50, height / 2, 15, 0, Math.PI * 2);
+          ctx.fill();
 
-        // Draw wave source
-        ctx.fillStyle = "#4a6fa5";
-        ctx.beginPath();
-        ctx.arc(50, height / 2, 15, 0, Math.PI * 2);
-        ctx.fill();
+          // Draw obstacle
+          ctx.fillStyle = "#e6b89c";
+          ctx.fillRect(width / 3, height / 4, 10, height / 2);
 
-        // Draw obstacle
-        ctx.fillStyle = "#e6b89c";
-        ctx.fillRect(width / 3, height / 4, 10, height / 2);
+          // Draw wavefronts based on distance
+          ctx.strokeStyle = "#4a6fa5";
+          ctx.lineWidth = 2;
 
-        // Draw wavefronts based on distance
-        ctx.strokeStyle = "#4a6fa5";
-        ctx.lineWidth = 2;
-
-        if (distance == 1) {
-          // Near field - curved wavefronts
-          for (let i = 0; i < 5; i++) {
-            const radius = 50 + i * 40;
-            ctx.beginPath();
-            ctx.arc(50, height / 2, radius, -Math.PI / 2, Math.PI / 2);
-            ctx.stroke();
-
-            // Draw diffraction after obstacle
-            if (radius > width / 3 - 50) {
-              const diffRadius = radius - (width / 3 - 50);
+          if (distance == 1) {
+            // Near field - curved wavefronts
+            for (let i = 0; i < 5; i++) {
+              const radius = 50 + i * 40;
               ctx.beginPath();
-              ctx.arc(
-                width / 3 + 10,
-                height / 2,
-                diffRadius,
-                -Math.PI / 2,
-                Math.PI / 2
-              );
+              ctx.arc(50, height / 2, radius, -Math.PI / 2, Math.PI / 2);
               ctx.stroke();
+
+              // Draw diffraction after obstacle
+              if (radius > width / 3 - 50) {
+                const diffRadius = radius - (width / 3 - 50);
+                ctx.beginPath();
+                ctx.arc(
+                  width / 3 + 10,
+                  height / 2,
+                  diffRadius,
+                  -Math.PI / 2,
+                  Math.PI / 2
+                );
+                ctx.stroke();
+              }
+            }
+
+            // Draw irregular pattern on screen
+            ctx.fillStyle = "#7db9b6";
+            for (let i = 0; i < height; i += 10) {
+              const intensity = Math.sin(i / 20) * Math.random() * 30 + 20;
+              ctx.fillRect(width - 50, i, intensity, 5);
+            }
+          } else if (distance == 2) {
+            // Medium field - transitioning
+            for (let i = 0; i < 5; i++) {
+              const radius = 50 + i * 60;
+              ctx.beginPath();
+              ctx.arc(50, height / 2, radius, -Math.PI / 2, Math.PI / 2);
+              ctx.stroke();
+
+              // Draw diffraction after obstacle
+              if (radius > width / 3 - 50) {
+                const diffRadius = radius - (width / 3 - 50);
+                ctx.beginPath();
+                ctx.arc(
+                  width / 3 + 10,
+                  height / 2,
+                  diffRadius,
+                  -Math.PI / 2,
+                  Math.PI / 2
+                );
+                ctx.stroke();
+              }
+            }
+
+            // Draw pattern on screen
+            ctx.fillStyle = "#7db9b6";
+            for (let i = 0; i < height; i += 10) {
+              const intensity = Math.sin(i / 15) * 40 + 30;
+              ctx.fillRect(width - 50, i, intensity, 5);
+            }
+          } else {
+            // Far field - plane wavefronts
+            for (let i = 0; i < 5; i++) {
+              const yOffset = i * 30;
+              ctx.beginPath();
+              ctx.moveTo(50, height / 2 - 60 + yOffset);
+              ctx.lineTo(width - 50, height / 2 - 60 + yOffset);
+              ctx.stroke();
+            }
+
+            // Draw Fraunhofer pattern on screen
+            ctx.fillStyle = "#7db9b6";
+            for (let i = 0; i < height; i += 10) {
+              const center = height / 2;
+              const distanceFromCenter = Math.abs(i - center);
+              const intensity =
+                80 *
+                Math.pow(
+                  Math.sin(distanceFromCenter / 20) / (distanceFromCenter / 20),
+                  2
+                );
+              ctx.fillRect(width - 50, i, Math.max(intensity, 10), 5);
             }
           }
 
-          // Draw irregular pattern on screen
-          ctx.fillStyle = "#7db9b6";
-          for (let i = 0; i < height; i += 10) {
-            const intensity = Math.sin(i / 20) * Math.random() * 30 + 20;
-            ctx.fillRect(width - 50, i, intensity, 5);
-          }
-        } else if (distance == 2) {
-          // Medium field - transitioning
-          for (let i = 0; i < 5; i++) {
-            const radius = 50 + i * 60;
-            ctx.beginPath();
-            ctx.arc(50, height / 2, radius, -Math.PI / 2, Math.PI / 2);
-            ctx.stroke();
-
-            // Draw diffraction after obstacle
-            if (radius > width / 3 - 50) {
-              const diffRadius = radius - (width / 3 - 50);
-              ctx.beginPath();
-              ctx.arc(
-                width / 3 + 10,
-                height / 2,
-                diffRadius,
-                -Math.PI / 2,
-                Math.PI / 2
-              );
-              ctx.stroke();
-            }
-          }
-
-          // Draw pattern on screen
-          ctx.fillStyle = "#7db9b6";
-          for (let i = 0; i < height; i += 10) {
-            const intensity = Math.sin(i / 15) * 40 + 30;
-            ctx.fillRect(width - 50, i, intensity, 5);
-          }
-        } else {
-          // Far field - plane wavefronts
-          for (let i = 0; i < 5; i++) {
-            const yOffset = i * 30;
-            ctx.beginPath();
-            ctx.moveTo(50, height / 2 - 60 + yOffset);
-            ctx.lineTo(width - 50, height / 2 - 60 + yOffset);
-            ctx.stroke();
-          }
-
-          // Draw Fraunhofer pattern on screen
-          ctx.fillStyle = "#7db9b6";
-          for (let i = 0; i < height; i += 10) {
-            const center = height / 2;
-            const distanceFromCenter = Math.abs(i - center);
-            const intensity =
-              80 *
-              Math.pow(
-                Math.sin(distanceFromCenter / 20) / (distanceFromCenter / 20),
-                2
-              );
-            ctx.fillRect(width - 50, i, Math.max(intensity, 10), 5);
-          }
+          // Draw screen
+          ctx.strokeStyle = "#333";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(width - 50, 0);
+          ctx.lineTo(width - 50, height);
+          ctx.stroke();
         }
 
-        // Draw screen
-        ctx.strokeStyle = "#333";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(width - 50, 0);
-        ctx.lineTo(width - 50, height);
-        ctx.stroke();
-      }
+        // Fresnel diffraction visualization
+        function drawFresnel() {
+          const width = fresnelCanvas.width;
+          const height = fresnelCanvas.height;
 
-      // Fresnel diffraction visualization
-      function drawFresnel() {
-        const width = fresnelCanvas.width;
-        const height = fresnelCanvas.height;
+          // Clear canvas
+          fresnelCtx.clearRect(0, 0, width, height);
 
-        // Clear canvas
-        fresnelCtx.clearRect(0, 0, width, height);
+          // Get parameters
+          const wavelength = document.getElementById("wavelength").value;
+          const slitWidth = document.getElementById("slit-width").value;
 
-        // Get parameters
-        const wavelength = document.getElementById("wavelength").value;
-        const slitWidth = document.getElementById("slit-width").value;
+          // Update labels
+          document.getElementById("wavelength-value").textContent =
+            wavelength + " nm";
+          document.getElementById("slit-width-value").textContent =
+            (slitWidth / 1000).toFixed(2) + " mm";
 
-        // Update labels
-        document.getElementById("wavelength-value").textContent =
-          wavelength + " nm";
-        document.getElementById("slit-width-value").textContent =
-          (slitWidth / 1000).toFixed(2) + " mm";
-
-        // Draw light source
-        fresnelCtx.fillStyle = "#4a6fa5";
-        fresnelCtx.beginPath();
-        fresnelCtx.arc(50, height / 2, 10, 0, Math.PI * 2);
-        fresnelCtx.fill();
-
-        // Draw slit
-        const slitX = width / 3;
-        const slitHeight = (slitWidth / 1000) * 500; // Scale for visualization
-        fresnelCtx.fillStyle = "#333";
-        fresnelCtx.fillRect(slitX, height / 2 - slitHeight / 2, 5, slitHeight);
-
-        // Draw curved wavefronts (Fresnel)
-        fresnelCtx.strokeStyle = "#4a6fa5";
-        fresnelCtx.lineWidth = 1;
-
-        for (let i = 0; i < 8; i++) {
-          const radius = 40 + i * 35;
+          // Draw light source
+          fresnelCtx.fillStyle = "#4a6fa5";
           fresnelCtx.beginPath();
-          fresnelCtx.arc(50, height / 2, radius, -Math.PI / 3, Math.PI / 3);
-          fresnelCtx.stroke();
+          fresnelCtx.arc(50, height / 2, 10, 0, Math.PI * 2);
+          fresnelCtx.fill();
 
-          // Draw diffraction after slit
-          if (radius > slitX - 50) {
-            const diffRadius = radius - (slitX - 50);
-            fresnelCtx.beginPath();
-            fresnelCtx.arc(
-              slitX + 5,
-              height / 2,
-              diffRadius,
-              -Math.PI / 2,
-              Math.PI / 2
-            );
-            fresnelCtx.stroke();
-          }
-        }
-
-        // Draw irregular pattern on screen (Fresnel pattern)
-        fresnelCtx.fillStyle = "#7db9b6";
-        const screenX = width - 50;
-
-        for (let y = 0; y < height; y += 8) {
-          // More complex pattern for Fresnel
-          const distanceFromCenter = Math.abs(y - height / 2);
-          const baseIntensity =
-            50 *
-            Math.sin(distanceFromCenter / 30) *
-            Math.cos(distanceFromCenter / 15 + wavelength / 100) *
-            (1 - distanceFromCenter / height);
-
-          const noise = Math.random() * 10;
-          const intensity = Math.max(baseIntensity + noise, 5);
-
-          fresnelCtx.fillRect(screenX, y, intensity, 6);
-        }
-
-        // Draw screen
-        fresnelCtx.strokeStyle = "#333";
-        fresnelCtx.lineWidth = 2;
-        fresnelCtx.beginPath();
-        fresnelCtx.moveTo(screenX, 0);
-        fresnelCtx.lineTo(screenX, height);
-        fresnelCtx.stroke();
-      }
-
-      // Fraunhofer diffraction visualization
-      function drawFraunhofer() {
-        const width = fraunhoferCanvas.width;
-        const height = fraunhoferCanvas.height;
-
-        // Clear canvas
-        fraunhoferCtx.clearRect(0, 0, width, height);
-
-        // Get parameters
-        const slitCount = document.getElementById("slit-count").value;
-        const gratingSpacing = document.getElementById("grating-spacing").value;
-
-        // Update labels
-        document.getElementById("slit-count-value").textContent = slitCount;
-        document.getElementById("grating-spacing-value").textContent =
-          (gratingSpacing / 1000).toFixed(2) + " mm";
-
-        // Draw light source with plane waves (Fraunhofer)
-        fresnelCtx.fillStyle = "#4a6fa5";
-
-        // Draw plane wavefronts
-        fraunhoferCtx.strokeStyle = "#4a6fa5";
-        fraunhoferCtx.lineWidth = 1;
-
-        for (let i = 0; i < 5; i++) {
-          const yOffset = i * 30;
-          fraunhoferCtx.beginPath();
-          fraunhoferCtx.moveTo(50, height / 2 - 60 + yOffset);
-          fraunhoferCtx.lineTo(width - 50, height / 2 - 60 + yOffset);
-          fraunhoferCtx.stroke();
-        }
-
-        // Draw diffraction grating
-        const gratingX = width / 3;
-        const slitHeight = 100;
-        const spacing = (gratingSpacing / 1000) * 50; // Scale for visualization
-
-        fraunhoferCtx.fillStyle = "#333";
-        for (let i = 0; i < slitCount; i++) {
-          const centerY =
-            height / 2 - ((slitCount - 1) * spacing) / 2 + i * spacing;
-          fraunhoferCtx.fillRect(
-            gratingX,
-            centerY - slitHeight / 2,
+          // Draw slit
+          const slitX = width / 3;
+          const slitHeight = (slitWidth / 1000) * 500; // Scale for visualization
+          fresnelCtx.fillStyle = "#333";
+          fresnelCtx.fillRect(
+            slitX,
+            height / 2 - slitHeight / 2,
             5,
             slitHeight
           );
-        }
 
-        // Draw Fraunhofer pattern on screen
-        fraunhoferCtx.fillStyle = "#7db9b6";
-        const screenX = width - 50;
+          // Draw curved wavefronts (Fresnel)
+          fresnelCtx.strokeStyle = "#4a6fa5";
+          fresnelCtx.lineWidth = 1;
 
-        for (let y = 0; y < height; y += 6) {
-          const distanceFromCenter = Math.abs(y - height / 2);
+          for (let i = 0; i < 8; i++) {
+            const radius = 40 + i * 35;
+            fresnelCtx.beginPath();
+            fresnelCtx.arc(50, height / 2, radius, -Math.PI / 3, Math.PI / 3);
+            fresnelCtx.stroke();
 
-          // Fraunhofer pattern formula (sinc^2 function)
-          let intensity;
-          if (slitCount == 1) {
-            // Single slit
-            const u = distanceFromCenter / 20;
-            intensity = 80 * Math.pow(Math.sin(u) / u, 2);
-          } else {
-            // Multiple slits - interference pattern
-            const u = distanceFromCenter / 20;
-            const v = distanceFromCenter / (10 / slitCount);
-            intensity =
-              80 *
-              Math.pow(Math.sin(u) / u, 2) *
-              Math.pow(Math.sin(slitCount * v) / Math.sin(v), 2);
+            // Draw diffraction after slit
+            if (radius > slitX - 50) {
+              const diffRadius = radius - (slitX - 50);
+              fresnelCtx.beginPath();
+              fresnelCtx.arc(
+                slitX + 5,
+                height / 2,
+                diffRadius,
+                -Math.PI / 2,
+                Math.PI / 2
+              );
+              fresnelCtx.stroke();
+            }
           }
 
-          // Avoid division by zero issues
-          if (isNaN(intensity)) intensity = 80;
+          // Draw irregular pattern on screen (Fresnel pattern)
+          fresnelCtx.fillStyle = "#7db9b6";
+          const screenX = width - 50;
 
-          fraunhoferCtx.fillRect(screenX, y, Math.max(intensity, 5), 5);
+          for (let y = 0; y < height; y += 8) {
+            // More complex pattern for Fresnel
+            const distanceFromCenter = Math.abs(y - height / 2);
+            const baseIntensity =
+              50 *
+              Math.sin(distanceFromCenter / 30) *
+              Math.cos(distanceFromCenter / 15 + wavelength / 100) *
+              (1 - distanceFromCenter / height);
+
+            const noise = Math.random() * 10;
+            const intensity = Math.max(baseIntensity + noise, 5);
+
+            fresnelCtx.fillRect(screenX, y, intensity, 6);
+          }
+
+          // Draw screen
+          fresnelCtx.strokeStyle = "#333";
+          fresnelCtx.lineWidth = 2;
+          fresnelCtx.beginPath();
+          fresnelCtx.moveTo(screenX, 0);
+          fresnelCtx.lineTo(screenX, height);
+          fresnelCtx.stroke();
         }
 
-        // Draw screen
-        fraunhoferCtx.strokeStyle = "#333";
-        fraunhoferCtx.lineWidth = 2;
-        fraunhoferCtx.beginPath();
-        fraunhoferCtx.moveTo(screenX, 0);
-        fraunhoferCtx.lineTo(screenX, height);
-        fraunhoferCtx.stroke();
+        // Fraunhofer diffraction visualization
+        function drawFraunhofer() {
+          const width = fraunhoferCanvas.width;
+          const height = fraunhoferCanvas.height;
 
-        // Update result descriptions
-        document.getElementById(
-          "central-max"
-        ).textContent = `Bright central maximum where waves from all ${slitCount} slit(s) constructively interfere.`;
+          // Clear canvas
+          fraunhoferCtx.clearRect(0, 0, width, height);
 
-        document.getElementById(
-          "side-fringes"
-        ).textContent = `Secondary maxima with intensity modulated by the single-slit diffraction envelope.`;
+          // Get parameters
+          const slitCount = document.getElementById("slit-count").value;
+          const gratingSpacing =
+            document.getElementById("grating-spacing").value;
+
+          // Update labels
+          document.getElementById("slit-count-value").textContent = slitCount;
+          document.getElementById("grating-spacing-value").textContent =
+            (gratingSpacing / 1000).toFixed(2) + " mm";
+
+          // Draw light source with plane waves (Fraunhofer)
+          fresnelCtx.fillStyle = "#4a6fa5";
+
+          // Draw plane wavefronts
+          fraunhoferCtx.strokeStyle = "#4a6fa5";
+          fraunhoferCtx.lineWidth = 1;
+
+          for (let i = 0; i < 5; i++) {
+            const yOffset = i * 30;
+            fraunhoferCtx.beginPath();
+            fraunhoferCtx.moveTo(50, height / 2 - 60 + yOffset);
+            fraunhoferCtx.lineTo(width - 50, height / 2 - 60 + yOffset);
+            fraunhoferCtx.stroke();
+          }
+
+          // Draw diffraction grating
+          const gratingX = width / 3;
+          const slitHeight = 100;
+          const spacing = (gratingSpacing / 1000) * 50; // Scale for visualization
+
+          fraunhoferCtx.fillStyle = "#333";
+          for (let i = 0; i < slitCount; i++) {
+            const centerY =
+              height / 2 - ((slitCount - 1) * spacing) / 2 + i * spacing;
+            fraunhoferCtx.fillRect(
+              gratingX,
+              centerY - slitHeight / 2,
+              5,
+              slitHeight
+            );
+          }
+
+          // Draw Fraunhofer pattern on screen
+          fraunhoferCtx.fillStyle = "#7db9b6";
+          const screenX = width - 50;
+
+          for (let y = 0; y < height; y += 6) {
+            const distanceFromCenter = Math.abs(y - height / 2);
+
+            // Fraunhofer pattern formula (sinc^2 function)
+            let intensity;
+            if (slitCount == 1) {
+              // Single slit
+              const u = distanceFromCenter / 20;
+              intensity = 80 * Math.pow(Math.sin(u) / u, 2);
+            } else {
+              // Multiple slits - interference pattern
+              const u = distanceFromCenter / 20;
+              const v = distanceFromCenter / (10 / slitCount);
+              intensity =
+                80 *
+                Math.pow(Math.sin(u) / u, 2) *
+                Math.pow(Math.sin(slitCount * v) / Math.sin(v), 2);
+            }
+
+            // Avoid division by zero issues
+            if (isNaN(intensity)) intensity = 80;
+
+            fraunhoferCtx.fillRect(screenX, y, Math.max(intensity, 5), 5);
+          }
+
+          // Draw screen
+          fraunhoferCtx.strokeStyle = "#333";
+          fraunhoferCtx.lineWidth = 2;
+          fraunhoferCtx.beginPath();
+          fraunhoferCtx.moveTo(screenX, 0);
+          fraunhoferCtx.lineTo(screenX, height);
+          fraunhoferCtx.stroke();
+
+          // Update result descriptions
+          document.getElementById(
+            "central-max"
+          ).textContent = `Bright central maximum where waves from all ${slitCount} slit(s) constructively interfere.`;
+
+          document.getElementById(
+            "side-fringes"
+          ).textContent = `Secondary maxima with intensity modulated by the single-slit diffraction envelope.`;
+        }
+
+        // Event listeners for main diffraction visualization
+        document
+          .getElementById("distance")
+          .addEventListener("input", drawDiffraction);
+
+        document
+          .getElementById("toggle-wave")
+          .addEventListener("click", function () {
+            // This would toggle between wave and particle visualization in a more complex implementation
+            alert(
+              "Wave visualization toggled! In a full implementation, this would switch between different visualization modes."
+            );
+          });
+
+        // Event listeners for Fresnel diffraction
+        document
+          .getElementById("wavelength")
+          .addEventListener("input", drawFresnel);
+        document
+          .getElementById("slit-width")
+          .addEventListener("input", drawFresnel);
+        document
+          .getElementById("reset-fresnel")
+          .addEventListener("click", function () {
+            document.getElementById("wavelength").value = 550;
+            document.getElementById("slit-width").value = 100;
+            drawFresnel();
+          });
+
+        // Event listeners for Fraunhofer diffraction
+        document
+          .getElementById("slit-count")
+          .addEventListener("input", drawFraunhofer);
+        document
+          .getElementById("grating-spacing")
+          .addEventListener("input", drawFraunhofer);
+        document
+          .getElementById("reset-fraunhofer")
+          .addEventListener("click", function () {
+            document.getElementById("slit-count").value = 1;
+            document.getElementById("grating-spacing").value = 500;
+            drawFraunhofer();
+          });
       }
-
-      // Event listeners for main diffraction visualization
-      document
-        .getElementById("distance")
-        .addEventListener("input", drawDiffraction);
-
-      document
-        .getElementById("toggle-wave")
-        .addEventListener("click", function () {
-          // This would toggle between wave and particle visualization in a more complex implementation
-          alert(
-            "Wave visualization toggled! In a full implementation, this would switch between different visualization modes."
-          );
-        });
-
-      // Event listeners for Fresnel diffraction
-      document
-        .getElementById("wavelength")
-        .addEventListener("input", drawFresnel);
-      document
-        .getElementById("slit-width")
-        .addEventListener("input", drawFresnel);
-      document
-        .getElementById("reset-fresnel")
-        .addEventListener("click", function () {
-          document.getElementById("wavelength").value = 550;
-          document.getElementById("slit-width").value = 100;
-          drawFresnel();
-        });
-
-      // Event listeners for Fraunhofer diffraction
-      document
-        .getElementById("slit-count")
-        .addEventListener("input", drawFraunhofer);
-      document
-        .getElementById("grating-spacing")
-        .addEventListener("input", drawFraunhofer);
-      document
-        .getElementById("reset-fraunhofer")
-        .addEventListener("click", function () {
-          document.getElementById("slit-count").value = 1;
-          document.getElementById("grating-spacing").value = 500;
-          drawFraunhofer();
-        });
     </script>
   </body>
 </html>

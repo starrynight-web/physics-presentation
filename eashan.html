@@ -1,598 +1,602 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Brewster's Law - Interactive Physics Lab</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap"
-      rel="stylesheet"
-    />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <style>
-      :root {
-        --deep-blue: #1a237e;
-        --electric-blue: #2962ff;
-        --light-blue: #bbdefb;
-        --white: #ffffff;
-        --accent: #ff6d00;
-      }
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: "Inter", sans-serif;
-        background: var(--white);
-        color: var(--deep-blue);
-        overflow-x: hidden;
-      }
-
-      header {
-        background: linear-gradient(
-          135deg,
-          var(--deep-blue) 0%,
-          var(--electric-blue) 100%
-        );
-        color: white;
-        padding: 3rem 2rem;
-        text-align: center;
-      }
-
-      h1 {
-        font-family: "Playfair Display", serif;
-        font-size: clamp(2.5rem, 6vw, 4rem);
-        font-weight: 800;
-        line-height: 1.1;
-        margin-bottom: 1rem;
-      }
-
-      .header-subtitle {
-        font-size: clamp(1rem, 2vw, 1.3rem);
-        font-weight: 300;
-        opacity: 0.9;
-      }
-
-      section {
-        max-width: 1000px;
-        margin: 2rem auto;
-        padding: 2rem;
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        border: 1px solid var(--light-blue);
-      }
-
-      h2 {
-        font-family: "Playfair Display", serif;
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 1.5rem;
-        color: var(--deep-blue);
-        border-bottom: 2px solid var(--electric-blue);
-        padding-bottom: 0.5rem;
-      }
-
-      h3 {
-        font-family: "Playfair Display", serif;
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        color: var(--deep-blue);
-      }
-
-      p {
-        line-height: 1.6;
-        margin-bottom: 1rem;
-      }
-
-      strong {
-        color: var(--electric-blue);
-      }
-
-      canvas {
-        width: 100%;
-        height: 100%;
-        display: block;
-        border: 2px solid var(--electric-blue);
-        border-radius: 10px;
-        background: var(--white);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      }
-
-      .controls {
-        margin: 20px 0;
-        padding: 20px;
-        background: #f8fafc;
-        border-radius: 10px;
-        border: 1px solid var(--light-blue);
-      }
-
-      .control-group {
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-
-      label {
-        display: inline-block;
-        width: 180px;
-        font-weight: 600;
-        color: var(--deep-blue);
-      }
-
-      input[type="range"] {
-        width: 300px;
-        height: 8px;
-        border-radius: 5px;
-        background: var(--light-blue);
-        outline: none;
-        -webkit-appearance: none;
-      }
-
-      input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: var(--accent);
-        cursor: pointer;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      }
-
-      .value {
-        font-weight: 700;
-        color: var(--accent);
-        min-width: 50px;
-      }
-
-      .button-group {
-        display: flex;
-        gap: 15px;
-        margin-top: 20px;
-      }
-
-      button {
-        padding: 0.75rem 1.5rem;
-        background: var(--electric-blue);
-        color: white;
-        border: none;
-        border-radius: 25px;
-        font-weight: 600;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 5px 15px rgba(41, 98, 255, 0.3);
-      }
-
-      button:hover {
-        background: var(--accent);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(255, 109, 0, 0.4);
-      }
-
-      .formula {
-        background: #fef9e7;
-        padding: 20px;
-        border-left: 5px solid var(--accent);
-        margin: 20px 0;
-        font-family: monospace;
-        font-size: 1.1em;
-        border-radius: 0 8px 8px 0;
-      }
-
-      .canvas-container {
-        position: relative;
-        margin: 20px 0;
-      }
-
-      .legend {
-        text-align: center;
-        margin-top: 15px;
-        font-weight: 500;
-      }
-
-      .interactive-diagram {
-        height: 500px;
-        background: #f0f7ff;
-        border-radius: 16px;
-        position: relative;
-        overflow: hidden;
-        border: 3px solid var(--electric-blue);
-      }
-
-      .value-display {
-        font-size: 1.4rem;
-        font-weight: 600;
-        color: var(--electric-blue);
-        text-align: center;
-        padding: 1rem;
-        background: #e6f0ff;
-        border-radius: 12px;
-        margin-top: 1rem;
-      }
-
-      .formula-box {
-        background: linear-gradient(
-          135deg,
-          var(--electric-blue) 0%,
-          var(--deep-blue) 100%
-        );
-        color: white;
-        padding: 2rem;
-        border-radius: 16px;
-        text-align: center;
-        font-size: 1.5rem;
-        margin-bottom: 2rem;
-      }
-
-      .info-section {
-        background: white;
-        padding: 2rem;
-        border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        border: 1px solid var(--light-blue);
-      }
-
-      footer {
-        text-align: center;
-        padding: 2rem;
-        background: var(--deep-blue);
-        color: white;
-        margin-top: 3rem;
-      }
-
-      @media (max-width: 768px) {
-        section {
-          padding: 1.5rem;
-          margin: 1.5rem;
-        }
-
-        .control-group {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-
-        label {
-          width: 100%;
-          margin-bottom: 5px;
-        }
-
-        input[type="range"] {
-          width: 100%;
-        }
-
-        .button-group {
-          flex-direction: column;
-        }
-
-        button {
-          width: 100%;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <h1>Brewster's Law</h1>
-      <p class="header-subtitle">Interactive Physics Presentation</p>
-    </header>
-
-    <section>
-      <h2>Live Reflection Simulator</h2>
-      <div class="interactive-diagram">
-        <canvas id="canvas"></canvas>
-      </div>
-
-      <div class="controls">
-        <div class="control-group">
-          <label for="angleSlider">Angle of Incidence (θ):</label>
-          <input
-            type="range"
-            id="angleSlider"
-            min="0"
-            max="89"
-            value="55"
-            step="1"
-          />
-          <span class="value" id="angleValue">55°</span>
-        </div>
-
-        <div class="control-group">
-          <label for="nSlider">Refractive Index (n):</label>
-          <input
-            type="range"
-            id="nSlider"
-            min="1.0"
-            max="3.0"
-            value="1.50"
-            step="0.01"
-          />
-          <span class="value" id="nValue">1.50</span>
-        </div>
-
-        <div class="value-display">
-          Brewster Angle θ<sub>B</sub> = <span id="brewsterAngle">58.0</span>°
-          <br />Polarization:
-          <span id="polStatus" style="color: var(--accent); font-weight: bold"
-            >Partially Polarized</span
-          >
-        </div>
-
-        <div class="button-group">
-          <button id="resetBtn">Reset to Brewster Angle</button>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <div class="formula-box">
-        <h2>Brewster's Law</h2>
-        <p style="font-size: 2.2rem; margin: 1.5rem 0">n = tan θ<sub>B</sub></p>
-        <p>
-          At Brewster's angle, reflected light is
-          <strong>100% polarized</strong> ⊥ to the plane of incidence.
-        </p>
-      </div>
-
-      <div class="info-section">
-        <h2>What Happens?</h2>
-        <ul style="margin-left: 1.5rem; font-size: 1.1rem">
-          <li>
-            When unpolarized light hits a surface at
-            <strong>Brewster's angle</strong>, the reflected ray becomes
-            <strong>completely plane-polarized</strong>.
-          </li>
-          <li>
-            Reflected and refracted rays are
-            <strong>perpendicular</strong> (90°).
-          </li>
-          <li>
-            Brewster angle depends only on refractive index:
-            <code>θ_B = arctan(n)</code>
-          </li>
-          <li>
-            Used in polarizers, laser cavities, anti-glare coatings, photography
-            filters.
-          </li>
-        </ul>
-
-        <h2 style="margin-top: 2rem">Real-World Examples</h2>
-        <p>
-          Polarized sunglasses block horizontally polarized light (glare from
-          roads/water). They work best when you tilt your head ~55–60° — close
-          to Brewster's angle for glass/water!
-        </p>
-      </div>
-    </section>
-    <!-- Navigation Buttons -->
-    <section
-      style="
-        text-align: center;
-        padding: 2rem;
-        max-width: 1000px;
-        margin: 2rem auto;
-      "
-    >
-      <a
-        href="mahtab.html"
-        style="
-          display: inline-block;
-          padding: 0.75rem 1.5rem;
-          background: var(--electric-blue);
-          color: white;
-          text-decoration: none;
-          border-radius: 25px;
-          font-weight: 600;
-          margin: 0 0.5rem;
-          transition: all 0.3s ease;
-        "
-        >← Back to Polarized Light</a
-      >
-      <a
-        href="index.html"
-        style="
-          display: inline-block;
-          padding: 0.75rem 1.5rem;
-          background: var(--accent);
-          color: white;
-          text-decoration: none;
-          border-radius: 25px;
-          font-weight: 600;
-          margin: 0 0.5rem;
-          transition: all 0.3s ease;
-        "
-        >Back to Home</a
-      >
-    </section>
-
-    <footer>
-      Interactive Brewster's Law Lab © 2025 | Inspired by classic polarimeter &
-      reflection experiments
-    </footer>
-
-    <script>
-      const canvas = document.getElementById("canvas");
-      const ctx = canvas.getContext("2d");
-      const angleSlider = document.getElementById("angleSlider");
-      const nSlider = document.getElementById("nSlider");
-      const angleValue = document.getElementById("angleValue");
-      const nValue = document.getElementById("nValue");
-      const brewsterAngleSpan = document.getElementById("brewsterAngle");
-      const polStatus = document.getElementById("polStatus");
-      const resetBtn = document.getElementById("resetBtn");
-
-      // Resize canvas properly
-      function resize() {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-      }
-      window.addEventListener("resize", resize);
-      resize();
-
-      let angle = 55; // degrees
-      let n = 1.5;
-
-      function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        const cx = canvas.width / 2;
-        const cy = canvas.height * 0.65;
-        const scale = Math.min(canvas.width, canvas.height) * 0.35;
-
-        // Interface (air-glass)
-        ctx.fillStyle = "#bbdefb";
-        ctx.fillRect(0, cy, canvas.width, canvas.height - cy);
-        ctx.strokeStyle = "#333";
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(0, cy);
-        ctx.lineTo(canvas.width, cy);
-        ctx.stroke();
-
-        // Normal line
-        ctx.strokeStyle = "#666";
-        ctx.setLineDash([10, 10]);
-        ctx.beginPath();
-        ctx.moveTo(cx, cy - scale);
-        ctx.lineTo(cx, cy + scale * 1.2);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        // Incident ray (yellow)
-        const rad = (angle * Math.PI) / 180;
-        const ix = cx - scale * Math.cos(rad);
-        const iy = cy - scale * Math.sin(rad);
-
-        ctx.strokeStyle = "#ffb300";
-        ctx.lineWidth = 6;
-        ctx.beginPath();
-        ctx.moveTo(ix, iy);
-        ctx.lineTo(cx, cy);
-        ctx.stroke();
-
-        // Draw arrowhead
-        drawArrow(ctx, ix, iy, cx, cy, "#ffb300");
-
-        // Reflected ray
-        ctx.strokeStyle = "#ff6b6b";
-        ctx.lineWidth = 6;
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.lineTo(cx + scale * Math.cos(rad), cy - scale * Math.sin(rad));
-        ctx.stroke();
-        drawArrow(
-          ctx,
-          cx,
-          cy,
-          cx + scale * Math.cos(rad),
-          cy - scale * Math.sin(rad),
-          "#ff6b6b"
-        );
-
-        // Refracted ray
-        const refractedAngle = (Math.asin(Math.sin(rad) / n) * 180) / Math.PI;
-        const rrad = (refractedAngle * Math.PI) / 180;
-        ctx.strokeStyle = "#4caf50";
-        ctx.lineWidth = 6;
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.lineTo(cx + scale * Math.cos(rrad), cy + scale * Math.sin(rrad));
-        ctx.stroke();
-        drawArrow(
-          ctx,
-          cx,
-          cy,
-          cx + scale * Math.cos(rrad),
-          cy + scale * Math.sin(rrad),
-          "#4caf50"
-        );
-
-        // Labels
-        ctx.fillStyle = "#333";
-        ctx.font = "16px Inter";
-        ctx.fillTextAlign = "center";
-        ctx.fillText(`θ = ${angle}°`, cx - 60, cy - 60);
-        ctx.fillText(`θr ≈ ${refractedAngle.toFixed(1)}°`, cx + 80, cy + 80);
-        ctx.fillText("Air", cx, cy - 100);
-        ctx.fillText(`Glass (n = ${n})`, cx, cy + 50);
-
-        // Polarization indication for reflected ray
-        if (Math.abs(angle - (Math.atan(n) * 180) / Math.PI) < 1) {
-          polStatus.textContent = "100% Polarized ⊥";
-          polStatus.style.color = "#d81b60";
-          // Show perpendicular polarization dots
-          drawPolarizationDots(ctx, cx + 60, cy - 100, 8);
-        } else if (Math.abs(angle - (Math.atan(n) * 180) / Math.PI) < 10) {
-          polStatus.textContent = "Almost Completely Polarized";
-          polStatus.style.color = "#ff9800";
-        } else {
-          polStatus.textContent = "Partially Polarized";
-          polStatus.style.color = "#666";
-        }
-      }
-
-      function drawArrow(ctx, fromx, fromy, tox, toy, color) {
-        const headlen = 15;
-        const dx = tox - fromx;
-        const dy = toy - fromy;
-        const angle = Math.atan2(dy, dx);
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 6;
-        ctx.beginPath();
-        ctx.moveTo(tox, toy);
-        ctx.lineTo(
-          tox - headlen * Math.cos(angle - Math.PI / 6),
-          toy - headlen * Math.sin(angle - Math.PI / 6)
-        );
-        ctx.moveTo(tox, toy);
-        ctx.lineTo(
-          tox - headlen * Math.cos(angle + Math.PI / 6),
-          toy - headlen * Math.sin(angle + Math.PI / 6)
-        );
-        ctx.stroke();
-      }
-
-      function drawPolarizationDots(ctx, x, y, count) {
-        ctx.fillStyle = "#d81b60";
-        for (let i = 0; i < count; i++) {
-          const yy = y + i * 15 - count * 7.5;
-          ctx.beginPath();
-          ctx.arc(x, yy, 4, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillRect(x - 15, yy - 1, 30, 2); // horizontal line = perpendicular polarization
-        }
-      }
-
-      // Update values and redraw
-      function update() {
-        angle = parseFloat(angleSlider.value);
-        n = parseFloat(nSlider.value).toFixed(2);
-
-        angleValue.textContent = angle;
-        nValue.textContent = n;
-
-        const brewster = (Math.atan(n) * 180) / Math.PI;
-        brewsterAngleSpan.textContent = brewster.toFixed(1);
-
-        draw();
-      }
-
-      angleSlider.addEventListener("input", update);
-      nSlider.addEventListener("input", update);
-      resetBtn.addEventListener("click", () => {
-        const brewsterDeg = (Math.atan(n) * 180) / Math.PI;
-        angleSlider.value = brewsterDeg.toFixed(0);
-        update();
-      });
-
-      // Initial draw
-      update();
-    </script>
-  </body>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Brewster's Law — Interactive Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --deep-blue: #1a237e;
+    --electric-blue: #2962ff;
+    --light-blue: #bbdefb;
+    --white: #ffffff;
+    --accent: #ff6d00;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: "Inter", sans-serif;
+    background: var(--white);
+    color: var(--deep-blue);
+    overflow-x: hidden;
+  }
+
+  header {
+    background: linear-gradient(
+      135deg,
+      var(--deep-blue) 0%,
+      var(--electric-blue) 100%
+    );
+    color: white;
+    padding: 3rem 2rem;
+    text-align: center;
+  }
+
+  h1 {
+    font-family: "Playfair Display", serif;
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+
+  .header-subtitle {
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    font-weight: 300;
+    opacity: 0.9;
+  }
+
+  section {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--light-blue);
+  }
+
+  h2 {
+    font-family: "Playfair Display", serif;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: var(--deep-blue);
+    border-bottom: 2px solid var(--electric-blue);
+    padding-bottom: 0.5rem;
+  }
+
+  h3 {
+    font-family: "Playfair Display", serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--deep-blue);
+  }
+
+  p {
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+
+  strong {
+    color: var(--electric-blue);
+  }
+
+  .canvas-container {
+    position: relative;
+    margin: 20px 0;
+  }
+
+  .canvas-wrap {
+    width: 100%;
+    height: 500px;
+    border: 2px solid var(--electric-blue);
+    border-radius: 10px;
+    background: var(--white);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+
+  canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .controls {
+    margin: 20px 0;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 10px;
+    border: 1px solid var(--light-blue);
+  }
+
+  .control-group {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  label {
+    display: inline-block;
+    width: 180px;
+    font-weight: 600;
+    color: var(--deep-blue);
+  }
+
+  input[type="range"] {
+    width: 300px;
+    height: 8px;
+    border-radius: 5px;
+    background: var(--light-blue);
+    outline: none;
+    -webkit-appearance: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+
+  .value {
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 50px;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+  }
+
+  button {
+    padding: 0.75rem 1.5rem;
+    background: var(--electric-blue);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(41, 98, 255, 0.3);
+  }
+
+  button:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 109, 0, 0.4);
+  }
+
+  .formula-box {
+    background: linear-gradient(
+      135deg,
+      var(--electric-blue) 0%,
+      var(--deep-blue) 100%
+    );
+    color: white;
+    padding: 2rem;
+    border-radius: 16px;
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .info-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--light-blue);
+  }
+
+  .value-display {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--electric-blue);
+    text-align: center;
+    padding: 1rem;
+    background: #e6f0ff;
+    border-radius: 12px;
+    margin-top: 1rem;
+  }
+
+  .legend {
+    text-align: center;
+    margin-top: 15px;
+    font-weight: 500;
+  }
+
+  .diagram-legend {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    justify-content: center;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: #f5fbff;
+    color: #264b8a;
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    background: var(--deep-blue);
+    color: white;
+    margin-top: 3rem;
+  }
+
+  .label-chip {
+    position: absolute;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    border: 1px solid rgba(142, 172, 255, 0.6);
+    font-weight: 600;
+    color: #234c8a;
+    font-size: 12px;
+    pointer-events: none;
+    box-shadow: 0 6px 14px rgba(91, 156, 247, 0.06);
+  }
+
+  @media (max-width: 768px) {
+    section {
+      padding: 1.5rem;
+      margin: 1.5rem;
+    }
+
+    .control-group {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    label {
+      width: 100%;
+      margin-bottom: 5px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .button-group {
+      flex-direction: column;
+    }
+
+    button {
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Brewster's Law</h1>
+  <p class="header-subtitle">Pure white + soft blue · three-ray demo · μ = tan θ<sub>B</sub></p>
+</header>
+
+<!-- Brewster's Law formula section at the top -->
+<section>
+  <div class="formula-box">
+    <h2>Brewster's Law</h2>
+    <p style="font-size: 2.2rem; margin: 1.5rem 0">μ = tan θ<sub>B</sub></p>
+    <p>
+      At Brewster's angle, reflected light is
+      <strong>100% polarized</strong> ⊥ to the plane of incidence.
+    </p>
+  </div>
+</section>
+
+<!-- Live Reflection Simulator section in the middle -->
+<section>
+  <h2>Live Reflection Simulator — Three Rays Visible</h2>
+  
+  <div class="canvas-container">
+    <div class="canvas-wrap" id="canvasWrap">
+      <canvas id="labCanvas"></canvas>
+      <div id="labelsLayer" style="position:absolute;left:0;top:0;pointer-events:none;width:100%;height:100%"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="control-group">
+      <label for="angleRange">Angle of Incidence (θ):</label>
+      <input id="angleRange" type="range" min="0" max="85" step="0.5" value="55" aria-label="Angle of incidence">
+      <span class="value" id="angleLabel">55°</span>
+    </div>
+
+    <div class="control-group">
+      <label for="meowRange">Refractive Index (μ):</label>
+      <input id="meowRange" type="range" min="1.00" max="1.50" step="0.01" value="1.50" aria-label="Refractive index">
+      <span class="value" id="meowLabel">1.50</span>
+    </div>
+
+    <div class="value-display">
+      Brewster Angle θ<sub>B</sub> = <span id="brewsterLabel">56.31</span>°
+      <br />Polarization:
+      <span id="brewsterStatus" style="color: var(--accent); font-weight: bold">Partially Polarized</span>
+    </div>
+
+    <div class="button-group">
+      <button id="resetBtn">Reset to Brewster Angle</button>
+      <button id="toggleAnim">Toggle Particle</button>
+    </div>
+  </div>
+
+  <div class="diagram-legend">
+    <div class="legend-item"><span class="dot" style="background:#ffb74d"></span>Incident — Unpolarised</div>
+    <div class="legend-item"><span class="dot" style="background:#ff8a80"></span>Reflected — Polarised</div>
+    <div class="legend-item"><span class="dot" style="background:#66d19e"></span>Refracted — Transmitted</div>
+  </div>
+</section>
+
+<!-- "What Happens" and "Real-World Examples" at the bottom -->
+<section>
+  <div class="info-section">
+    <h2>What Happens?</h2>
+    <ul style="margin-left: 1.5rem; font-size: 1.1rem">
+      <li>
+        When unpolarized light hits a surface at
+        <strong>Brewster's angle</strong>, the reflected ray becomes
+        <strong>completely plane-polarized</strong>.
+      </li>
+      <li>
+        Reflected and refracted rays are
+        <strong>perpendicular</strong> (90°).
+      </li>
+      <li>
+        Brewster angle depends only on refractive index:
+        <code>θ_B = arctan(μ)</code>
+      </li>
+      <li>
+        Used in polarizers, laser cavities, anti-glare coatings, photography
+        filters.
+      </li>
+    </ul>
+
+    <h2 style="margin-top: 2rem">Real-World Examples</h2>
+    <p>
+      Polarized sunglasses block horizontally polarized light (glare from
+      roads/water). They work best when you tilt your head ~55–60° — close
+      to Brewster's angle for glass/water!
+    </p>
+  </div>
+</section>
+
+<footer>
+  Interactive Brewster's Law Lab © 2025 | Inspired by classic polarimeter & reflection experiments
+</footer>
+
+<script>
+/* ---------- Canvas + sizing fixes ---------- */
+const canvas = document.getElementById('labCanvas');
+const ctx = canvas.getContext('2d');
+const labelsLayer = document.getElementById('labelsLayer');
+
+function setCanvasSize(){
+  // use CSS size and devicePixelRatio for crisp drawing
+  const rect = canvas.getBoundingClientRect();
+  const dpr = Math.max(window.devicePixelRatio || 1, 1);
+  canvas.width = Math.round(rect.width * dpr);
+  canvas.height = Math.round(rect.height * dpr);
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = rect.height + 'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  labelsLayer.style.width = rect.width + 'px';
+  labelsLayer.style.height = rect.height + 'px';
+}
+window.addEventListener('resize', () => { setCanvasSize(); draw(); });
+setCanvasSize();
+
+/* ---------- Controls ---------- */
+const angleRange = document.getElementById('angleRange');
+const meowRange = document.getElementById('meowRange');
+const angleLabel = document.getElementById('angleLabel');
+const meowLabel = document.getElementById('meowLabel');
+const brewsterLabel = document.getElementById('brewsterLabel');
+const brewsterStatus = document.getElementById('brewsterStatus');
+const resetBtn = document.getElementById('resetBtn');
+const toggleAnimBtn = document.getElementById('toggleAnim');
+
+let angleDeg = parseFloat(angleRange.value);
+let meow = parseFloat(meowRange.value);
+let particleOn = true;
+
+angleRange.addEventListener('input', () => { angleDeg = parseFloat(angleRange.value); angleLabel.textContent = angleDeg.toFixed(1); draw(); });
+meowRange.addEventListener('input', () => { meow = parseFloat(meowRange.value); meowLabel.textContent = meow.toFixed(2); draw(); });
+
+resetBtn.addEventListener('click', () => {
+  const brew = Math.atan(meow) * 180 / Math.PI;
+  angleRange.value = brew.toFixed(2);
+  angleDeg = brew;
+  angleLabel.textContent = angleDeg.toFixed(1);
+  draw();
+});
+toggleAnimBtn.addEventListener('click', () => { particleOn = !particleOn; toggleAnimBtn.textContent = particleOn ? 'Toggle Particle' : 'Toggle Particle'; });
+
+/* ---------- Helpers ---------- */
+function degToRad(d){ return d * Math.PI/180; }
+function radToDeg(r){ return r * 180/Math.PI; }
+
+function clearLabels(){ labelsLayer.innerHTML = ''; }
+function placeLabel(x,y,text,opts={}){
+  const el = document.createElement('div');
+  el.className = 'label-chip';
+  el.textContent = text;
+  el.style.left = (x + 6) + 'px';
+  el.style.top = (y - 10) + 'px';
+  if(opts.color) el.style.color = opts.color;
+  labelsLayer.appendChild(el);
+}
+
+/* ---------- Drawing ---------- */
+let tick = 0;
+function draw(){
+  // clear
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  clearLabels();
+
+  // geometry anchors (improved positioning so rays fit)
+  const cx = w * 0.5;
+  const surfaceY = h * 0.55;
+  const margin = Math.min(w,h) * 0.06;
+  // make ray length relative but clipped to avoid off-canvas
+  const maxLen = Math.min(w, h) * 0.48;
+  const len = Math.max(140, maxLen); // ensure decent length but not too big
+
+  // background for denser medium portion
+  ctx.fillStyle = '#eff7ff';
+  ctx.fillRect(0, surfaceY, w, h - surfaceY);
+
+  // surface line
+  ctx.strokeStyle = '#9fcfff';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(0, surfaceY); ctx.lineTo(w, surfaceY); ctx.stroke();
+
+  // normal
+  ctx.setLineDash([6,6]); ctx.strokeStyle = '#9fbff7'; ctx.lineWidth = 1.8;
+  ctx.beginPath(); ctx.moveTo(cx, surfaceY - h*0.38); ctx.lineTo(cx, surfaceY + h*0.38); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // incident ray: start a bit left/up so it's visible
+  const theta = degToRad(angleDeg);
+  const ix = cx - (len * 0.65) * Math.cos(theta);
+  const iy = surfaceY - (len * 0.65) * Math.sin(theta);
+  drawRay(ix, iy, cx, surfaceY, '#ffb74d', 5);
+  placeLabel(Math.max(8, ix - 6), Math.max(8, iy - 24), 'Incident (Unpolarised)');
+
+  // reflected ray (symmetric)
+  const rx = cx + (len * 0.55) * Math.cos(theta);
+  const ry = surfaceY - (len * 0.55) * Math.sin(theta);
+  drawRay(cx, surfaceY, rx, ry, '#ff8a80', 5);
+  placeLabel(Math.min(w - 120, rx + 6), Math.max(8, ry - 24), 'Reflected (Polarised)');
+
+  // refracted ray using Snell (assume incident medium n1 = 1)
+  let sin_t = Math.sin(theta) / meow;
+  if(sin_t > 1) sin_t = 1;
+  if(sin_t < -1) sin_t = -1;
+  const theta_t = Math.asin(sin_t); // positive downwards
+  const tx = cx + (len * 0.6) * Math.cos(theta_t);
+  const ty = surfaceY + (len * 0.6) * Math.sin(theta_t);
+  drawRay(cx, surfaceY, tx, ty, '#66d19e', 5);
+  placeLabel(Math.min(w - 180, tx + 6), Math.min(h - 30, ty + 6), 'Refracted (Transmitted)');
+
+  // angle arcs
+  drawAngleArc(cx, surfaceY, -theta, '#7aa7f9', 'θ');
+  drawAngleArc(cx, surfaceY, theta_t, '#7ee0b6', 'θₜ', 1);
+
+  // brewster checks
+  const brewRad = Math.atan(meow);
+  const brewDeg = radToDeg(brewRad);
+  brewsterLabel.textContent = brewDeg.toFixed(2);
+  const perpCheck = Math.abs(angleDeg + radToDeg(theta_t) - 90);
+  if(perpCheck < 0.6){
+    brewsterStatus.innerHTML = '100% Polarized ⊥';
+    brewsterStatus.style.color = '#d81b60';
+  } else if(perpCheck < 6){
+    brewsterStatus.innerHTML = 'Almost Completely Polarized';
+    brewsterStatus.style.color = '#ff9800';
+  } else {
+    brewsterStatus.innerHTML = 'Partially Polarized';
+    brewsterStatus.style.color = '#666';
+  }
+
+  // numeric readouts on canvas
+  ctx.font = '12px Inter';
+  ctx.fillStyle = '#234c8a';
+  ctx.fillText(`μ = ${meow.toFixed(2)}`, 10, 16);
+  ctx.fillText(`θ = ${angleDeg.toFixed(2)}°`, 10, 34);
+  ctx.fillText(`θₜ = ${radToDeg(theta_t).toFixed(2)}°`, 10, 52);
+
+  // particles along rays
+  if(particleOn){
+    tick++;
+    animateParticleAlong(ix, iy, cx, surfaceY, '#ffb74d', (tick*0.02) % 1);
+    animateParticleAlong(cx, surfaceY, rx, ry, '#ff8a80', (tick*0.02 + 0.3) % 1);
+    animateParticleAlong(cx, surfaceY, tx, ty, '#66d19e', (tick*0.02 + 0.6) % 1);
+  }
+}
+
+function drawRay(x1,y1,x2,y2,color,width=4){
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+  ctx.strokeStyle = color; ctx.lineWidth = width; ctx.lineCap = 'round'; ctx.stroke();
+  // arrowhead
+  const ang = Math.atan2(y2-y1,x2-x1);
+  const len = 12;
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2 - len * Math.cos(ang - Math.PI/7), y2 - len * Math.sin(ang - Math.PI/7));
+  ctx.lineTo(x2 - len * Math.cos(ang + Math.PI/7), y2 - len * Math.sin(ang + Math.PI/7));
+  ctx.closePath();
+  ctx.fillStyle = color; ctx.fill();
+}
+
+function drawAngleArc(cx, cy, angleRad, color, labelText, outward=0){
+  const r = Math.min(canvas.clientWidth, canvas.clientHeight) * 0.09;
+  const start = -Math.PI/2;
+  const end = -Math.PI/2 + angleRad;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r + outward*8, start, end, angleRad < 0);
+  ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+  // place label mid arc
+  const mid = start + (end - start)/2;
+  const lx = cx + (r + 16 + outward*6) * Math.cos(mid);
+  const ly = cy + (r + 16 + outward*6) * Math.sin(mid);
+  placeLabel(lx, ly, labelText);
+}
+
+function animateParticleAlong(x1,y1,x2,y2,color, t){
+  const px = x1 + (x2 - x1) * t;
+  const py = y1 + (y2 - y1) * t;
+  ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI*2); ctx.fillStyle = color; ctx.fill();
+}
+
+/* animation loop */
+(function loop(){
+  requestAnimationFrame(loop);
+  draw();
+})();
+
+/* initial sync */
+angleLabel.textContent = angleDeg.toFixed(1);
+meowLabel.textContent = meow.toFixed(2);
+brewsterLabel.textContent = (Math.atan(meow)*180/Math.PI).toFixed(2);
+
+/* ensure canvas correctly sized once at load */
+window.addEventListener('load', () => { setCanvasSize(); draw(); });
+</script>
+
+</body>
 </html>
